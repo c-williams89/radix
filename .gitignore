@@ -5,3 +5,6 @@ doc/radix_rubric.adoc
 
 # Ignore helper text
 letter_index.txt
+
+data.txt
+src/driver.txt
