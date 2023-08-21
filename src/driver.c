@@ -8,8 +8,8 @@
 int main (void) {
         trie_t *root = radix_create();
 
-        // FILE *fp = fopen("./test/p_dict.txt", "r");
-        FILE *fp = fopen("./data.txt", "r");
+        FILE *fp = fopen("./test/p_dict.txt", "r");
+        // FILE *fp = fopen("./data.txt", "r");
         if (!fp) {
                 perror("fopen");
                 errno = 0;
