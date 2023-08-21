@@ -49,7 +49,7 @@ static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
                 node->children[index]->b_is_word = true;
                 return node->children[index];
         }
-        
+        int new_index = 0;
         trie_t *tmp = node->children[index];
         int root_word_len = strlen(tmp->word);
         int prefix_idx = get_prefix_index(word, tmp->word);
@@ -57,10 +57,18 @@ static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
         printf("len is %d and rootlen is %d\n", len, root_word_len);
         char *word_cpy = calloc(root_word_len, sizeof(char));
         word += prefix_idx;
+        
         if (prefix_idx == root_word_len) {
                 printf("True!\n");
-                int index = CHAR_TO_INDEX(word[0]);
-                return radix_insert_rec(tmp, word, (len - prefix_idx), index);
+                new_index = CHAR_TO_INDEX(word[0]);
+                return radix_insert_rec(tmp, word, (len - prefix_idx), new_index);
+        } else if (prefix_idx < root_word_len) {
+                root_word_len = root_word_len - prefix_idx;
+                char *new_string = calloc(root_word_len + 1, sizeof(char));
+                memcpy(new_string, tmp->word + prefix_idx, root_word_len);
+                new_index = CHAR_TO_INDEX(new_string[0]);
+                tmp->word[prefix_idx] = '\0';
+                return radix_insert_rec(tmp, new_string, root_word_len, new_index);
         }
 }
 
