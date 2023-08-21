@@ -17,8 +17,8 @@
 
 struct trie_t {
         struct trie_t *children[NUM_CHARS];
-        bool b_is_word;
         char *word;
+        bool b_is_word;
 };
 
 trie_t *radix_create(void)
