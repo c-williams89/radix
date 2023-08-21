@@ -16,7 +16,7 @@ BIN := radix
 CHECK := $(BIN)_check
 
 TSTS := $(wildcard $(TST_DIR)/*.c)
-TST_OBJS := $(filter-out $(OBJ_DIR)/$(BIN).o, $(OBJS))
+TST_OBJS := $(filter-out $(OBJ_DIR)/driver.o, $(OBJS))
 TST_OBJS += $(patsubst $(TST_DIR)/%.c, $(OBJ_DIR)/%.o, $(TSTS))
 TST_LIBS := -lcheck -lm -pthread -lrt -lsubunit
 
