@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "radix.h"
+#include "../include/radix.h"
 
 #define MAX_CHAR 256
 
