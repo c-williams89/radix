@@ -57,10 +57,17 @@ static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
         int new_index = 0;
         trie_t *cpy = node->children[index];
         int root_word_len = strlen(cpy->word);
+        if (strlen(word) == root_word_len) {
+                if (strncmp(word, cpy->word, root_word_len)) {
+                        cpy->b_is_word = true;
+                        return;
+                }
+        }
+        // if (strncmp(word, cpy->word, ))
         int prefix_idx = get_prefix_index(word, cpy->word);
         // printf("With word %s, prefix idx is %d\n", word, prefix_idx);
         // printf("len is %d and rootlen is %d\n", len, root_word_len);
-        char *word_cpy = calloc(root_word_len, sizeof(char));
+        // char *word_cpy = calloc(root_word_len, sizeof(char));
 
         // Edge case 1: new word diverges at end of root word
         if (prefix_idx == root_word_len) {
@@ -69,11 +76,20 @@ static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
                 new_index = CHAR_TO_INDEX(word[0]);
                 return radix_insert_rec(cpy, word, (len - prefix_idx), new_index);
         // Edge case 2: new word becomes new root word (some bifurcation)
+// BUG: Need to compare length of current word vs incoming?
+
         } else if (prefix_idx < root_word_len) {
                 // Creating a new node and copying over bifurcated end of original string
                 root_word_len = root_word_len - prefix_idx;
-                trie_t *tmp = radix_create_node(root_word_len);
-                memcpy(tmp->word, (cpy->word + prefix_idx), root_word_len);
+                trie_t *tmp;
+                if (root_word_len > strlen(word)) {
+                        tmp = radix_create_node(strlen(word));
+                        memcpy(tmp->word, (cpy->word + prefix_idx), strlen((word)));
+                } else {
+                        tmp = radix_create_node(root_word_len);
+                        memcpy(tmp->word, (cpy->word + prefix_idx), root_word_len);
+
+                }
                 // printf("tmp now: %s\n", tmp->word);
                 
                 // Sets non-unique character to null
@@ -95,9 +111,12 @@ static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
                 
                 // Handing off new node to original
                 cpy->children[new_index] = tmp;
+                word += prefix_idx;
                 // printf("now: %s\n", cpy->children[new_index]->word);
-
-                return radix_insert_rec(cpy, new_string, root_word_len, new_index);
+                new_index = CHAR_TO_INDEX(word[0]);
+                return radix_insert_rec(cpy, word, strlen(word), new_index);
+                
+                // return radix_insert_rec(cpy, new_string, root_word_len, new_index);
         // Edge case 3: complete bifurcation
         // No other case, it either diverges at end of root word, or before
         } else {
