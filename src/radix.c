@@ -43,32 +43,65 @@ int radix_insert_word(trie_t *trie, const char *word)
 }
 
 static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
+// TODO: Edge Cases:
+//  1. New word is longer - Handled
+//  2. New word is shorter
+//  3. Bifurcation
         if (!node->children[index]) {
                 node->children[index] = radix_create_node(len);
                 memcpy(node->children[index]->word, word, len);
                 node->children[index]->b_is_word = true;
                 return node->children[index];
         }
-        int new_index = 0;
-        trie_t *tmp = node->children[index];
-        int root_word_len = strlen(tmp->word);
-        int prefix_idx = get_prefix_index(word, tmp->word);
-        printf("With word %s, prefix idx is %d\n", word, prefix_idx);
-        printf("len is %d and rootlen is %d\n", len, root_word_len);
-        char *word_cpy = calloc(root_word_len, sizeof(char));
-        word += prefix_idx;
         
+        int new_index = 0;
+        trie_t *cpy = node->children[index];
+        int root_word_len = strlen(cpy->word);
+        int prefix_idx = get_prefix_index(word, cpy->word);
+        // printf("With word %s, prefix idx is %d\n", word, prefix_idx);
+        // printf("len is %d and rootlen is %d\n", len, root_word_len);
+        char *word_cpy = calloc(root_word_len, sizeof(char));
+
+        // Edge case 1: new word diverges at end of root word
         if (prefix_idx == root_word_len) {
+                word += prefix_idx;
                 printf("True!\n");
                 new_index = CHAR_TO_INDEX(word[0]);
-                return radix_insert_rec(tmp, word, (len - prefix_idx), new_index);
+                return radix_insert_rec(cpy, word, (len - prefix_idx), new_index);
+        // Edge case 2: new word becomes new root word (some bifurcation)
         } else if (prefix_idx < root_word_len) {
+                // Creating a new node and copying over bifurcated end of original string
                 root_word_len = root_word_len - prefix_idx;
+                trie_t *tmp = radix_create_node(root_word_len);
+                memcpy(tmp->word, (cpy->word + prefix_idx), root_word_len);
+                // printf("tmp now: %s\n", tmp->word);
+                
+                // Sets non-unique character to null
                 char *new_string = calloc(root_word_len + 1, sizeof(char));
-                memcpy(new_string, tmp->word + prefix_idx, root_word_len);
+                memcpy(new_string, cpy->word + prefix_idx, root_word_len);
                 new_index = CHAR_TO_INDEX(new_string[0]);
-                tmp->word[prefix_idx] = '\0';
-                return radix_insert_rec(tmp, new_string, root_word_len, new_index);
+                // new_index = CHAR_TO_INDEX(tmp->word[0]);
+                cpy->word[prefix_idx] = '\0';
+                // printf("Comparing %s and %s\n", word, cpy->word);
+                
+                for (int i = 0; i < NUM_CHARS; ++i) {
+                        if (cpy->children[i]) {
+                                tmp->children[i] = cpy->children[i];
+                                cpy->children[i] = NULL;
+                        }
+                }
+                
+                
+                
+                // Handing off new node to original
+                cpy->children[new_index] = tmp;
+                // printf("now: %s\n", cpy->children[new_index]->word);
+
+                return radix_insert_rec(cpy, new_string, root_word_len, new_index);
+        // Edge case 3: complete bifurcation
+        // No other case, it either diverges at end of root word, or before
+        } else {
+
         }
 }
 
@@ -104,13 +137,37 @@ void radix_delete(trie_t **trie)
 }
 
 void radix_print(trie_t *root) {
-        printf("%s\n", root->children[15]->word);
-        printf("%s\n", root->children[15]->children[18]->word);
+        for (int i = 0; i < NUM_CHARS; ++i) {
+                if (root->children[i]) {
+                        printf("%d - %s\n", i, root->children[i]->word);
+                        for (int j = 0; j < NUM_CHARS; ++j) {
+                                if (root->children[i]->children[j]) {
+                                        printf("%d:%d - %s\n", i, j, root->children[i]->children[j]->word);
+                                        for (int k = 0; k < NUM_CHARS; ++k) {
+                                                if (root->children[i]->children[j]->children[k]) {
+                                                        printf("%d:%d:%d - %s\n", i, j, k, root->children[i]->children[j]->children[k]->word);
+                                                        for (int l = 0; l < NUM_CHARS; ++l) {
+                                                                if (root->children[i]->children[j]->children[k]->children[l]) {
+                                                                        printf("%d:%d:%d:%d - %s\n", i, j, k, l, root->children[i]->children[j]->children[k]->children[l]->word);
+                                                                        for (int m = 0; m < NUM_CHARS; ++m) {
+                                                                                if (root->children[i]->children[j]->children[k]->children[l]->children[m]) {
+                                                                                        printf("%d:%d:%d:%d:%d - %s\n", i, j, k, l, m, root->children[i]->children[j]->children[k]->children[l]->children[m]->word);
+                                                                                }
+                                                                        }
+                                                                }
+                                                        }
+                                                }
+                                                
+                                        }
+                                }
+                        }
+                }
+        }
 }
 
 static int get_prefix_index(const char *word, const char *new_word) {
         int index = 0;
-        printf("comparing %s and %s\n", word, new_word);
+        // printf("comparing %s and %s\n", word, new_word);
         while (word[index] == new_word[index]) {
                 ++index;
         }

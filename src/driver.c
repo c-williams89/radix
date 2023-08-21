@@ -8,11 +8,11 @@
 int main (void) {
         trie_t *root = radix_create();
 
-        FILE *fp = fopen("./data.txt", "r");
+        FILE *fp = fopen("./test/p_dict.txt", "r");
         if (!fp) {
                 perror("fopen");
                 errno = 0;
-                return;
+                return 1;
         }
         int nl_loc = 0;
         char *string = calloc(50, sizeof(char));
@@ -22,5 +22,6 @@ int main (void) {
                 radix_insert_word(root, string);
         }
         radix_print(root);
+        return 1;
 
 }
