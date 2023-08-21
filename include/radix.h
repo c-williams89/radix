@@ -74,5 +74,7 @@ void radix_delete(trie_t **trie);
  * void radix_print_nodes(trie_t *trie);
  */
 
+void radix_print(trie_t *root);
+
 #endif /* RADIX_H */
 /*** end of file ***/
