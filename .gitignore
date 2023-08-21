@@ -1,0 +1,4 @@
+# Ignore admin docs
+doc/radix_description.pdf
+doc/radix_rubric.pdf
+doc/radix_rubric.adoc
