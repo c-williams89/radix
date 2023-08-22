@@ -19,7 +19,7 @@ struct trie_t {
 static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index);
 static trie_t *radix_create_node(int len);
 static int get_prefix_index(const char *word, const char *new_word); 
-static int radix_find_rec(trie_t *root, char *word);
+static int radix_find_rec(trie_t *root, char *word, bool b_to_remove);
 
 
 trie_t *radix_create(void)
@@ -33,22 +33,35 @@ int radix_insert_word(trie_t *trie, const char *word)
                 fprintf(stderr, "radix_insert_word: Invalid argument - NULL\n");
                 return 0;
         }
-
+        int return_val = 0;
         trie_t *tmp = trie;
         int len = strlen(word);
         char *word_cpy = calloc(len + 1, sizeof(char));
         strncpy(word_cpy, word, len);
         int index = CHAR_TO_INDEX(word[0]);
+        
+        // if (radix_find_rec(trie->children[index]), )
         radix_insert_rec(tmp, word_cpy, len, index);
         return 1;
 }
 
-/*
+// CURRENT:
 int radix_remove_word(trie_t *trie, const char *word)
 {
-        return 0;
+        if ((!trie) || (!word) || (strlen(word) < 1)) {
+                fprintf(stderr, "radix_remove_word: Invalid argument\n");
+                return -1;
+        }
+
+        for (int i = 0; i < NUM_CHARS; ++i) {
+                if (trie->children[i]) {
+                        return radix_find_rec(trie->children[i], word, true);
+                }
+        }
+
+
 }
-*/
+
 
 int radix_find_word(trie_t *trie, const char *target)
 {
@@ -59,7 +72,7 @@ int radix_find_word(trie_t *trie, const char *target)
         
         for (int i = 0; i < NUM_CHARS; ++i) {
                 if (trie->children[i]) {
-                        return radix_find_rec(trie->children[i], target);
+                        return radix_find_rec(trie->children[i], target, false);
                 }
         }
 }
@@ -75,11 +88,6 @@ int radix_find_word(trie_t *trie, const char *target)
 // }
 
 static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
-// TODO: Edge Cases:
-//  1. New word is longer - Handled
-//  2. New word is shorter - Handled
-//  3. Bifurcation - Handled
-//  These are assumed handled based on provided test data.
         if (!node->children[index]) {
                 node->children[index] = radix_create_node(len);
                 memcpy(node->children[index]->word, word, len);
@@ -116,15 +124,19 @@ static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
                 } else {
                         tmp = radix_create_node(root_word_len);
                         memcpy(tmp->word, (cpy->word + prefix_idx), root_word_len);
-
                 }
+                tmp->b_is_word = true;
                 
                 // Sets non-unique character to null
                 char *new_string = calloc(root_word_len + 1, sizeof(char));
                 memcpy(new_string, cpy->word + prefix_idx, root_word_len);
                 new_index = CHAR_TO_INDEX(new_string[0]);
                 cpy->word[prefix_idx] = '\0';
-                cpy->b_is_word = false;
+                if (new_word_len == prefix_idx) {
+                        cpy->b_is_word = true;
+                } else {
+                        cpy->b_is_word = false;
+                }
                 
                 for (int i = 0; i < NUM_CHARS; ++i) {
                         if (cpy->children[i]) {
@@ -140,8 +152,6 @@ static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
                         len_to_pass = strlen(word);
                         // return radix_insert_rec(cpy, word, strlen(word), new_index);
                 } 
-                // TODO: Possibly remove else clause. Believe it is unneccessary as it
-                //  is already handled and the function falls through to the end if not met.
                 else {
                         return NULL;
                 }
@@ -167,7 +177,7 @@ static int get_prefix_index(const char *word, const char *new_word) {
         return index;
 }
 
-static int radix_find_rec(trie_t *root, char *word) {
+static int radix_find_rec(trie_t *root, char *word, bool b_to_remove) {
         if (!root) {
                 return 0;
         }
@@ -178,13 +188,16 @@ static int radix_find_rec(trie_t *root, char *word) {
 
         if (0 == strncmp(root->word, word, root_len)) {
                 if ((root_len == word_len) && (root->b_is_word)) {
+                        if (b_to_remove) {
+                                root->b_is_word = false;
+                        }
                         return 1;
                 } else {
                         word += prefix;
                         next_index = CHAR_TO_INDEX(word[0]);
                 }
         }
-        return radix_find_rec(root->children[next_index], word);
+        return radix_find_rec(root->children[next_index], word, b_to_remove);
 }
 
 void radix_print(trie_t *root) {
