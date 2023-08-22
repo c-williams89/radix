@@ -16,14 +16,16 @@ int main(void)
 		errno = 0;
 		return 1;
 	}
-	int nl_loc = 0;
-	char *string = calloc(50, sizeof(char));
-	while (fgets(string, 50, fp)) {
-		nl_loc = strcspn(string, "\n");
-		string[nl_loc] = '\0';
-		radix_insert_word(root, string);
-	}
-	radix_print(root);
+	// int nl_loc = 0;
+	// char *string = calloc(50, sizeof(char));
+        // char string[5] = { '\0 '};
+	// while (fgets(string, 50, fp)) {
+	// 	nl_loc = strcspn(string, "\n");
+	// 	string[nl_loc] = '\0';
+	// 	radix_insert_word(root, string);
+	// }
+        // free(string);
+	// radix_print(root);
 	fclose(fp);
 
         // Test for the known words:
@@ -39,13 +41,18 @@ int main(void)
                 "picket",
                 "pickles"
         };
+
+        for (int i = 0; i < 10; ++i) {
+                radix_insert_word(root, test_words[i]);
+        }
+        radix_print(root);
 	// char *test_words[] =
 	//     { "pick", "pla", "play", "banana", "pickling", "p", "placebos",
         //         "pic", NULL,  };
         printf("\n\nValid words test:\n");
 	for (int i = 0; i < 10; ++i) {
 		if (radix_find_word(root, test_words[i])) {
-			printf("%s:Found!\n", test_words[i]);
+			printf("%s\t:Found!\n", test_words[i]);
 		} else {
 			printf("%s:\tNot Found\n", test_words[i]);
 		}
@@ -55,7 +62,6 @@ int main(void)
 
         // Test for invalid words and prefixes
         char *invalid_words[] = {
-                NULL,
                 "pla",
                 "banana",
                 "p",
@@ -64,17 +70,20 @@ int main(void)
                 "pan"
         };
         printf("\n\nInvalid words test:\n");
-        for (int i = 0; i < 7; ++i) {
+        for (int i = 0; i < 6; ++i) {
 		if (radix_find_word(root, invalid_words[i])) {
 			printf("%s:\tFound!\n", invalid_words[i]);
 		} else {
 			printf("%s:\tNot Found\n", invalid_words[i]);
 		}
 	}
-	radix_remove_word(root, "pickling");
+	if (radix_remove_word(root, "pickling")) {
+                printf("pickling deleted\n");
+        }
 	if (!radix_find_word(root, "pickling")) {
 		printf("pickling not found\n");
 	}
+        radix_delete(&root);
 	return 1;
 
 }
