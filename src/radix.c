@@ -1,3 +1,4 @@
+#define _DEFAULT_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -21,7 +22,10 @@ static trie_t *radix_create_node(int len);
 static int get_prefix_index(const char *word, const char *new_word); 
 static int radix_find_rec(trie_t *root, char *word, bool b_to_remove);
 static void radix_delete_rec(trie_t *node);
+static void print_word_by_prefix(trie_t *node, char *word, int len);
+static trie_t *get_prefix_node(trie_t *node, char *word);
 
+// TODO: Add helper function to validate input as all lowercase a - z
 
 trie_t *radix_create(void)
 {
@@ -74,19 +78,56 @@ int radix_find_word(trie_t *trie, const char *target)
         
         for (int i = 0; i < NUM_CHARS; ++i) {
                 if (trie->children[i]) {
-                        return radix_find_rec(trie->children[i], target, false);
+                        
+                        if (radix_find_rec(trie->children[i], target, false)) {
+                                return 1;
+                        }
                 }
         }
 }
 
-// int radix_find_prefix(trie_t *trie, const char *prefix)
-// {
-//         return 0;
-// }
+int radix_find_prefix(trie_t *trie, const char *prefix)
+{
+        int return_status = 0;
+        if ((!trie) || (!prefix)) {
+                fprintf(stderr, "radix_find_prefix: Invalid argument - NULL\n");
+                return_status = -1;
+                goto EXIT;
+        }
+
+        if (strlen(prefix) < 1) {
+                fprintf(stderr, "radix_find_prefix: Invalid argument - 'prefix' must not be empty string\n");
+                return_status = -1;
+                goto EXIT;
+        }
+
+        int index = CHAR_TO_INDEX(prefix[0]);
+        printf("Index is : %d\n", index);
+        int len = strlen(prefix);
+        char *word = calloc(len, sizeof(char));
+        memcpy(word, prefix, len);
+        if (!trie->children[index]) {
+                return_status = 0;
+                goto EXIT;
+                // printf("Prefix: %s\nWords:\n", prefix);
+                // print_word_by_prefix(trie->children[index], word, len);
+        }
+        trie_t *tmp = trie->children[index];
+        bool b_prefix_found;
+        // while (!b_prefix_found) {
+        //         if (0 == strncmp(tmp->word, prefix, len)) {
+        //                 if ()
+        //         }
+        // }
+        trie_t *node = get_prefix_node(tmp, prefix);
+        // trie_t *node = radix_find_rec(tmp, prefix, false);
+        // printf("prefix node: %s\n", node->word);
+EXIT:
+        return return_status;
+}
 
 void radix_delete(trie_t **trie)
 {
-        printf("called here\n");
         if ((!trie) || (!*trie)) {
                 fprintf(stderr, "radix_delete: Invalid argument - NULL\n");
                 return;
@@ -95,14 +136,8 @@ void radix_delete(trie_t **trie)
         trie_t *tmp = *trie;
         for (int i = 0; i < NUM_CHARS; ++i) {
                 if (tmp->children[i]) {
-                        printf("%s\n", tmp->children[i]->word);
                         radix_delete(&(tmp->children[i]));
-                        // free(tmp->word);
-
-                        // free(tmp->children[i]);
                 }
-                // free(tmp);
-                // free(tmp->children);
         }
         free(tmp->word);
         free(tmp);
@@ -215,10 +250,11 @@ static int radix_find_rec(trie_t *root, char *word, bool b_to_remove) {
                         if (root->b_is_word) {
                                 if (b_to_remove) {
                                         root->b_is_word = false;
-                                        return_status = 1;
+                                        // return_status = 1;
                                         // goto EXIT;
                                         // return 1;
                                 }
+                                // node = root;
                                 return_status = 1;
                                 goto EXIT;
                                 // return 1;
@@ -275,7 +311,52 @@ void radix_print(trie_t *root) {
         }
 }
 
+static trie_t *get_prefix_node(trie_t *node, char *word) {
+        trie_t *tmp = NULL;
+        if (!node || strlen(word) < 1) {
+                goto EXIT;
+                // return 0;
+        }
 
+        int root_len = strlen(node->word);
+        int word_len = strlen(word);
+        int prefix = get_prefix_index(node->word, word);
+        int next_index = 0;
+
+        if (0 == strncmp(node->word, word, root_len)) {
+                if (root_len == word_len) {
+                        tmp = node;
+                        goto EXIT;
+                }
+        } else {
+                word += prefix;
+                next_index = CHAR_TO_INDEX(word[0]);
+        }
+        return get_prefix_node(node->children[next_index], word);
+EXIT:
+        return tmp;
+}
+
+static void print_word_by_prefix(trie_t *node, char *word, int len) {
+        printf("%s\n", node->word);
+        printf("Word: %s\n", word);
+
+        bool prefix_found = false;
+        while (!prefix_found)
+        {
+                
+        }
+        
+
+        for (int i = 0; i < NUM_CHARS; ++i) {
+                if (node->children[i]) {
+                        int new_len = strlen(node->children[i]->word);
+                        char *tmp = reallocarray(word, len + new_len, sizeof(char));
+                        strncat(word, node->children[i]->word, new_len + len);
+                        printf("New word: %s\n", word);
+                }
+        }
+}
 
 /*
 void radix_print_nodes(trie_t *trie)
