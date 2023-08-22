@@ -38,7 +38,8 @@ int radix_insert_word(trie_t *trie, const char *word)
         trie_t *tmp = trie;
         int len = strlen(word);
         char *word_cpy = calloc(len + 1, sizeof(char));
-        strncpy(word_cpy, word, len);
+        memcpy(word_cpy, word, len);
+        // strncpy(word_cpy, word, len);
         int index = CHAR_TO_INDEX(word[0]);
         
         // if (radix_find_rec(trie->children[index]), )
@@ -85,7 +86,7 @@ int radix_find_word(trie_t *trie, const char *target)
 
 void radix_delete(trie_t **trie)
 {
-        printf("caleld here\n");
+        printf("called here\n");
         if ((!trie) || (!*trie)) {
                 fprintf(stderr, "radix_delete: Invalid argument - NULL\n");
                 return;
@@ -94,12 +95,16 @@ void radix_delete(trie_t **trie)
         trie_t *tmp = *trie;
         for (int i = 0; i < NUM_CHARS; ++i) {
                 if (tmp->children[i]) {
+                        printf("%s\n", tmp->children[i]->word);
                         radix_delete(&(tmp->children[i]));
-                        free(tmp->children[i]->word);
-                        free(tmp->children[i]);
+                        // free(tmp->word);
+
+                        // free(tmp->children[i]);
                 }
+                // free(tmp);
                 // free(tmp->children);
         }
+        free(tmp->word);
         free(tmp);
 }
 
@@ -189,15 +194,16 @@ static trie_t *radix_create_node(int len) {
 
 static int get_prefix_index(const char *word, const char *new_word) {
         int index = 0;
-        while (word[index] == new_word[index]) {
+        while ((word[index] == new_word[index]) && (word[index] && new_word[index])) {
                 ++index;
         }
         return index;
 }
 
 static int radix_find_rec(trie_t *root, char *word, bool b_to_remove) {
-        if (!root) {
-                return 0;
+        int return_status = 0;
+        if ((!root) || (strlen(word) < 1)) {
+                goto EXIT;
         }
         int root_len = strlen(root->word);
         int word_len = strlen(word);
@@ -205,17 +211,39 @@ static int radix_find_rec(trie_t *root, char *word, bool b_to_remove) {
         int next_index = 0;
 
         if (0 == strncmp(root->word, word, root_len)) {
-                if ((root_len == word_len) && (root->b_is_word)) {
-                        if (b_to_remove) {
-                                root->b_is_word = false;
+                if (root_len == word_len) {
+                        if (root->b_is_word) {
+                                if (b_to_remove) {
+                                        root->b_is_word = false;
+                                        return_status = 1;
+                                        // goto EXIT;
+                                        // return 1;
+                                }
+                                return_status = 1;
+                                goto EXIT;
+                                // return 1;
+                        } else {
+                                goto EXIT;
+                                // return 0;
                         }
-                        return 1;
                 } else {
                         word += prefix;
                         next_index = CHAR_TO_INDEX(word[0]);
                 }
+
+                // if ((root_len == word_len) && (root->b_is_word)) {
+                //         if (b_to_remove) {
+                //                 root->b_is_word = false;
+                //         }
+                //         return 1;
+                // } else {
+                //         word += prefix;
+                //         next_index = CHAR_TO_INDEX(word[0]);
+                // }
         }
         return radix_find_rec(root->children[next_index], word, b_to_remove);
+EXIT:
+        return return_status;
 }
 
 void radix_print(trie_t *root) {
