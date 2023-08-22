@@ -94,6 +94,7 @@ static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
                 memcpy(new_string, cpy->word + prefix_idx, root_word_len);
                 new_index = CHAR_TO_INDEX(new_string[0]);
                 cpy->word[prefix_idx] = '\0';
+                cpy->b_is_word = false;
                 
                 for (int i = 0; i < NUM_CHARS; ++i) {
                         if (cpy->children[i]) {
@@ -166,7 +167,6 @@ static int radix_find_rec(trie_t *root, char *word) {
                         next_index = CHAR_TO_INDEX(word[0]);
                 }
         }
-
         return radix_find_rec(root->children[next_index], word);
 }
 
