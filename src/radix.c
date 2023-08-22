@@ -20,6 +20,7 @@ struct trie_t {
 static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index);
 static trie_t *radix_create_node(int len);
 static int get_prefix_index(const char *word, const char *new_word); 
+static int radix_find_rec(trie_t *root, char *word);
 
 
 trie_t *radix_create(void)
@@ -132,10 +133,42 @@ static trie_t *radix_create_node(int len) {
 //         return 0;
 // }
 
-// int radix_find_word(trie_t *trie, const char *target)
-// {
-//         return 0;
-// }
+// CURRENT: This is the next step. The recursive version will be called at the 
+//  start of insert to return 0 if the word already exists.
+int radix_find_word(trie_t *trie, const char *target)
+{
+        if ((!trie) || (!target) || (strlen(target) < 1)) {
+                fprintf(stderr, "radix_find_word: Invalid argument\n");
+                return -1;
+        }
+        
+        for (int i = 0; i < NUM_CHARS; ++i) {
+                if (trie->children[i]) {
+                        return radix_find_rec(trie->children[i], target);
+                }
+        }
+}
+
+static int radix_find_rec(trie_t *root, char *word) {
+        if (!root) {
+                return 0;
+        }
+        int root_len = strlen(root->word);
+        int word_len = strlen(word);
+        int prefix = get_prefix_index(root->word, word);
+        int next_index = 0;
+
+        if (0 == strncmp(root->word, word, root_len)) {
+                if ((root_len == word_len) && (root->b_is_word)) {
+                        return 1;
+                } else {
+                        word += prefix;
+                        next_index = CHAR_TO_INDEX(word[0]);
+                }
+        }
+
+        return radix_find_rec(root->children[next_index], word);
+}
 
 // int radix_find_prefix(trie_t *trie, const char *prefix)
 // {

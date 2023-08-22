@@ -23,6 +23,24 @@ int main (void) {
                 radix_insert_word(root, string);
         }
         radix_print(root);
+        fclose(fp);
+
+        char *test_words[] = { "pick", "pla", "play", "banana", "picklings", "p"};
+
+        for (int i = 0; i < 6; ++i) {
+                if (radix_find_word(root, test_words[i])) {
+                        printf("%s Found!\n", test_words[i]);
+                } else {
+                        printf("%s Not Found\n", test_words[i]);
+                }
+        }
+        // if (radix_find_word(root, "pick")) {
+        //         printf("Pick found\n");
+        // }
+
+        // if (!radix_find_word(root, "pla")) {
+        //         printf("PLA not found\n");
+        // }
         return 1;
 
 }
