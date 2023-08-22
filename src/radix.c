@@ -7,7 +7,6 @@
 #include "../include/radix.h"
 
 #define CHAR_TO_INDEX(c) ((int)c - (int)'a')
-#define INDEX_TO_CHAR(i) ((char)i + (char)'a')
 
 #define NUM_CHARS 26
 
@@ -43,6 +42,37 @@ int radix_insert_word(trie_t *trie, const char *word)
         radix_insert_rec(tmp, word_cpy, len, index);
         return 1;
 }
+
+/*
+int radix_remove_word(trie_t *trie, const char *word)
+{
+        return 0;
+}
+*/
+
+int radix_find_word(trie_t *trie, const char *target)
+{
+        if ((!trie) || (!target) || (strlen(target) < 1)) {
+                fprintf(stderr, "radix_find_word: Invalid argument\n");
+                return -1;
+        }
+        
+        for (int i = 0; i < NUM_CHARS; ++i) {
+                if (trie->children[i]) {
+                        return radix_find_rec(trie->children[i], target);
+                }
+        }
+}
+
+// int radix_find_prefix(trie_t *trie, const char *prefix)
+// {
+//         return 0;
+// }
+
+// void radix_delete(trie_t **trie)
+// {
+//         return;
+// }
 
 static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
 // TODO: Edge Cases:
@@ -118,6 +148,7 @@ static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
         }
         return radix_insert_rec(cpy, word, len_to_pass, new_index); 
 }
+
 static trie_t *radix_create_node(int len) {
         trie_t *node = calloc(1, sizeof(*node));
         if (!node) {
@@ -128,26 +159,12 @@ static trie_t *radix_create_node(int len) {
         return node;
 }
 
-
-// int radix_remove_word(trie_t *trie, const char *word)
-// {
-//         return 0;
-// }
-
-// CURRENT: This is the next step. The recursive version will be called at the 
-//  start of insert to return 0 if the word already exists.
-int radix_find_word(trie_t *trie, const char *target)
-{
-        if ((!trie) || (!target) || (strlen(target) < 1)) {
-                fprintf(stderr, "radix_find_word: Invalid argument\n");
-                return -1;
+static int get_prefix_index(const char *word, const char *new_word) {
+        int index = 0;
+        while (word[index] == new_word[index]) {
+                ++index;
         }
-        
-        for (int i = 0; i < NUM_CHARS; ++i) {
-                if (trie->children[i]) {
-                        return radix_find_rec(trie->children[i], target);
-                }
-        }
+        return index;
 }
 
 static int radix_find_rec(trie_t *root, char *word) {
@@ -169,16 +186,6 @@ static int radix_find_rec(trie_t *root, char *word) {
         }
         return radix_find_rec(root->children[next_index], word);
 }
-
-// int radix_find_prefix(trie_t *trie, const char *prefix)
-// {
-//         return 0;
-// }
-
-// void radix_delete(trie_t **trie)
-// {
-//         return;
-// }
 
 void radix_print(trie_t *root) {
         for (int i = 0; i < NUM_CHARS; ++i) {
@@ -209,13 +216,7 @@ void radix_print(trie_t *root) {
         }
 }
 
-static int get_prefix_index(const char *word, const char *new_word) {
-        int index = 0;
-        while (word[index] == new_word[index]) {
-                ++index;
-        }
-        return index;
-}
+
 
 /*
 void radix_print_nodes(trie_t *trie)
