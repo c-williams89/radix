@@ -20,6 +20,7 @@ static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index);
 static trie_t *radix_create_node(int len);
 static int get_prefix_index(const char *word, const char *new_word); 
 static int radix_find_rec(trie_t *root, char *word, bool b_to_remove);
+static void radix_delete_rec(trie_t *node);
 
 
 trie_t *radix_create(void)
@@ -42,10 +43,10 @@ int radix_insert_word(trie_t *trie, const char *word)
         
         // if (radix_find_rec(trie->children[index]), )
         radix_insert_rec(tmp, word_cpy, len, index);
+        free(word_cpy);
         return 1;
 }
 
-// CURRENT:
 int radix_remove_word(trie_t *trie, const char *word)
 {
         if ((!trie) || (!word) || (strlen(word) < 1)) {
@@ -82,10 +83,25 @@ int radix_find_word(trie_t *trie, const char *target)
 //         return 0;
 // }
 
-// void radix_delete(trie_t **trie)
-// {
-//         return;
-// }
+void radix_delete(trie_t **trie)
+{
+        printf("caleld here\n");
+        if ((!trie) || (!*trie)) {
+                fprintf(stderr, "radix_delete: Invalid argument - NULL\n");
+                return;
+        }
+
+        trie_t *tmp = *trie;
+        for (int i = 0; i < NUM_CHARS; ++i) {
+                if (tmp->children[i]) {
+                        radix_delete(&(tmp->children[i]));
+                        free(tmp->children[i]->word);
+                        free(tmp->children[i]);
+                }
+                // free(tmp->children);
+        }
+        free(tmp);
+}
 
 static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
         if (!node->children[index]) {
@@ -128,9 +144,11 @@ static trie_t *radix_insert_rec(trie_t *node, char *word, int len, int index) {
                 tmp->b_is_word = true;
                 
                 // Sets non-unique character to null
-                char *new_string = calloc(root_word_len + 1, sizeof(char));
-                memcpy(new_string, cpy->word + prefix_idx, root_word_len);
-                new_index = CHAR_TO_INDEX(new_string[0]);
+                // TODO: Doesn't look like this logic is necessary, confirm then delete
+                // char *new_string = calloc(root_word_len + 1, sizeof(char));
+                // memcpy(new_string, cpy->word + prefix_idx, root_word_len);
+                // new_index = CHAR_TO_INDEX(new_string[0]);
+                new_index = CHAR_TO_INDEX((cpy->word + prefix_idx)[0]);
                 cpy->word[prefix_idx] = '\0';
                 if (new_word_len == prefix_idx) {
                         cpy->b_is_word = true;

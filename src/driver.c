@@ -23,6 +23,7 @@ int main(void)
 		string[nl_loc] = '\0';
 		radix_insert_word(root, string);
 	}
+        free(string);
 	radix_print(root);
 	fclose(fp);
 
@@ -75,6 +76,7 @@ int main(void)
 	if (!radix_find_word(root, "pickling")) {
 		printf("pickling not found\n");
 	}
+        radix_delete(&root);
 	return 1;
 
 }

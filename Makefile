@@ -1,49 +1,78 @@
-.PHONY: check debug clean grade all
+.PHONY: all run clean check debug
 
-CFLAGS := -std=c18
-CFLAGS += -Wall -Wextra -Wpedantic
-CFLAGS += -Wwrite-strings -Wvla -Wfloat-equal -Waggregate-return
-CFLAGS += -D _DEFAULT_SOURCE
+CC := gcc-9
+
+# compile flags
+CFLAGS += -std=c18 -Wall -lm
+
+DFLAGS := -g3
+VFLAGS += --leak-check=full --track-origins=yes
 
 SRC_DIR := src
 OBJ_DIR := obj
-TST_DIR := test
+DOCS_DIR := docs
+TEST_DIR := test
+HDR_DIR := include
+LIB_DIR := lib
 
+LIB := $(wildcard $(LIB_DIR)/*.a)
 SRCS := $(wildcard $(SRC_DIR)/*.c)
 OBJS := $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 
+# executable
 BIN := radix
 CHECK := $(BIN)_check
 
-TSTS := $(wildcard $(TST_DIR)/*.c)
-TST_OBJS := $(filter-out $(OBJ_DIR)/driver.o, $(OBJS))
-TST_OBJS += $(patsubst $(TST_DIR)/%.c, $(OBJ_DIR)/%.o, $(TSTS))
-TST_LIBS := -lcheck -lm -pthread -lrt -lsubunit
+TESTS := $(wildcard $(TEST_DIR)/*.c)
+TEST_OBJS := $(filter-out $(OBJ_DIR)/driver.o, $(OBJS))
+TEST_OBJS += $(patsubst $(TEST_DIR)/%.c, $(OBJ_DIR)/%.o, $(TESTS))
+TEST_LIBS := -lcheck -lm -pthread -lrt -lsubunit
 
 all: $(BIN)
 
-debug: CFLAGS += -g
+debug: CFLAGS += $(DFLAGS) -pg
 debug: $(BIN)
 
 check: $(CHECK)
 
-clean:
-	@rm -rf $(OBJ_DIR) $(BIN) $(GRADE) $(CHECK)
+valgrind: CFLAGS += $(DFLAGS)
+valgrind: clean $(BIN)
+	@valgrind $(VFLAGS) ./$(BIN) $(ARGS)
+
+clean: 
+	@rm -rf $(BIN) $(OBJ_DIR) $(CHECK)
+	
+indent:
+	indent -linux $(SRC_DIR)/*.c
+	@rm $(SRC_DIR)/*.c~
+	indent -linux $(TEST_DIR)/*.c
+	@rm $(TEST_DIR)/*.c~
+	indent -linux $(HDR_DIR)/*.h
+	@rm $(HDR_DIR)/*.h~
+
+# creates object files from .c files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
+	@$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/%.o: $(TEST_DIR)/%.c
+	@$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJ_DIR):
 	@mkdir -p $@
 
 $(OBJS): | $(OBJ_DIR)
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(OBJ_DIR)/%.o: $(TST_DIR)/%.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
+# creates executable from object
 $(BIN): $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@ $(LDLIBS)
+	$(CC) $(CFLAGS) $^ -o $@ $(LIB) 
 
-$(CHECK): $(TST_OBJS)
-	$(CC) $(CFLAGS) $^ -o $@ $(TST_LIBS)
+$(CHECK): $(TEST_OBJS)
+	$(CC) $(CFLAGS) $^ -o $@ $(TEST_LIBS) $(LIB)
 	./$(CHECK)
+
+print:
+	$(info $$SRCS is [$(SRCS)])
+	$(info $$OBJS is [$(OBJS)])
+	$(info $$TSTS is [$(TSTS)])
+	$(info $$TST_OBJS is [$(TST_OBJS)])
+	$(info $$TST_LIBS is [$(TST_LIBS)])
