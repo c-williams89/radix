@@ -9,6 +9,14 @@
 
 typedef struct trie_t trie_t;
 
+// TODO: Functions to write:
+//  [x] radix_create
+//  [x] radix_insert_word
+//  [x] radix_remove_word
+//  [x] radix_find_word
+//  [] radix_find_prefix
+//  [x] radix_delete
+
 /**
  * @brief Creates a prefixing trie
  *
@@ -24,7 +32,7 @@ trie_t *radix_create(void);
  * 
  * @return Non-zero on success, zero on failure
  */
-int radix_insert_word(trie_t *trie, const char *word);
+int radix_insert_word(trie_t * trie, const char *word);
 
 /**
  * @brief Removes word from trie
@@ -34,7 +42,7 @@ int radix_insert_word(trie_t *trie, const char *word);
  * 
  * @return 1 if removed, else 0. -1 on error.
  */
-int radix_remove_word(trie_t *trie, const char *word);
+int radix_remove_word(trie_t * trie, const char *word);
 
 /**
  * @brief Searches trie for word and prints word if found
@@ -44,7 +52,7 @@ int radix_remove_word(trie_t *trie, const char *word);
  *
  * @return 1 if found, else 0. -1 on error.
  */
-int radix_find_word(trie_t *trie, const char *target);
+int radix_find_word(trie_t * trie, const char *target);
 
 /**
  * @brief Searches trie for prefix and prints all words starting with prefix
@@ -54,14 +62,14 @@ int radix_find_word(trie_t *trie, const char *target);
  *
  * @return 1 if found, else 0. -1 on error.
  */
-int radix_find_prefix(trie_t *trie, const char *prefix);
+int radix_find_prefix(trie_t * trie, const char *prefix);
 
 /**
  * @brief Deletes tree, free() memory, set calling functions pointer to NULL
  *
  * @param[in/out] trie The trie to delete -> NULL
  */
-void radix_delete(trie_t **trie);
+void radix_delete(trie_t ** trie);
 
 /**
  * @brief Extra Credit: Print function supporting the following rules
@@ -74,7 +82,7 @@ void radix_delete(trie_t **trie);
  * void radix_print_nodes(trie_t *trie);
  */
 
-void radix_print(trie_t *root);
+void radix_print(trie_t * root);
 
-#endif /* RADIX_H */
+#endif				/* RADIX_H */
 /*** end of file ***/
