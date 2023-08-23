@@ -97,6 +97,7 @@ int main(void)
 
 	radix_delete(&root);
 	radix_find_prefix(root, "pickle");
+        radix_delete(&root);
 	return 1;
 
 }

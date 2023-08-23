@@ -223,10 +223,17 @@ END_TEST START_TEST(test_radix_delete_valid)
 {
 	populate_trie();
 	radix_delete(&root);
+
+	// TEST: children all NULL after delete
 	for (int i = 0; i < NUM_CHARS; ++i) {
 		ck_assert_ptr_eq(root->children, NULL);
 	}
+
+	// TEST: root set to NULL after delete
 	ck_assert_ptr_eq(root, NULL);
+
+	// TEST: call delete again to ensure delete does not segfaul on NULL ptr
+	radix_delete(&root);
 } END_TEST static TFun core_tests[] = {
 
 	test_radix_create,
