@@ -55,6 +55,31 @@ const char *invalid_words[] = {
 	"pi"
 };
 
+const char *valid_prefixes[] = {
+	"p",
+	"pan",
+	"pi",
+	"pick",
+	"pl",
+	"pla",
+	"placeb",
+	"picke",
+	"pickl",
+	"pickle",
+	"picklin"
+};
+
+const char *invalid_prefixes[] = {
+	"ic",
+	"pand",
+	"pice",
+	"ply",
+	"placb",
+	"lay",
+	"anacea",
+	"plce"
+};
+
 void setup(void) {
 	root = radix_create();
 }
@@ -90,13 +115,13 @@ START_TEST(test_radix_insert_valid) {
 START_TEST(test_radix_insert_invalid) {
 	setup();
 	
-	// Test aginst known errors, NULL, empty string, and invalid chars
+	// TEST: aginst known errors, NULL, empty string, and invalid chars
 	ck_assert_int_eq(radix_insert_word(NULL, "p"), 0);
 	for (int i = 0; i < 6; ++i) {
 		ck_assert_int_eq(radix_insert_word(root, invalid_args[i]), 0);
 	}
 	
-	// Test against already added word
+	// TEST: against already added word
 	ck_assert_int_ne(radix_insert_word(root, "pickle"), 0);
 	ck_assert_int_eq(radix_insert_word(root, "pickle"), 0);
 	teardown();
@@ -115,18 +140,18 @@ START_TEST (test_radix_remove_word_valid) {
 START_TEST (test_radix_remove_word_invalid) {
 	populate_trie();
 	
-	// Test against known errors, NULL, empty string and invalid chars
+	// TEST against known errors, NULL, empty string and invalid chars
 	ck_assert_int_eq(radix_remove_word(NULL, "pickles"), -1);
 	for (int i = 0; i < 6; ++i) {
 		ck_assert_int_eq(radix_remove_word(root, invalid_args[i]), -1);
 	}
 
-	// Test against words not in trie
+	// TEST: against words not in trie
 	for (int i = 0; i < 9; ++i) {
 		ck_assert_int_eq(radix_remove_word(root, invalid_words[i]), 0);
 	}
 	
-	// Test against word previously removed
+	// TEST: against word previously removed
 	ck_assert_int_eq(radix_remove_word(root, "pickles"), 1);
 	ck_assert_int_eq(radix_remove_word(root, "pickles"), 0);
 	teardown();
@@ -148,17 +173,44 @@ END_TEST
 START_TEST (test_radix_find_word_invalid) {
 	populate_trie();
 
-	// Test against known errors, NULL, empty string and invalid chars
+	// TEST: against known errors, NULL, empty string and invalid chars
 	for (int i = 0; i < 6; ++i) {
 		ck_assert_int_eq(radix_find_word(root, invalid_args[i]), -1);
 	}
 
-	// Test against node strings, or partial strings in trie but not marked as word
+	// TEST: against node strings, or partial strings in trie but not marked as word
 	for (int i = 0; i < 9; ++i) {
 		ck_assert_int_eq(radix_find_word(root, invalid_words[i]), 0);
 	}
 
 	teardown();
+}
+END_TEST
+
+// NOTE: radix_find_prefix returns 1 if found, else 0, -1 on error
+START_TEST (test_radix_find_prefix_valid) {
+	populate_trie();
+
+	for (int i = 0; i < 11; ++i) {
+		ck_assert_int_eq(radix_find_prefix(root, valid_prefixes[i]), 1);
+	}
+
+	teardown();
+}
+END_TEST
+
+START_TEST (test_radix_find_prefix_invalid) {
+	populate_trie();
+
+	//TEST: against known errors, NULL, empty string and invalid chars
+	for (int i = 0; i < 6; ++i) {
+		ck_assert_int_eq(radix_find_prefix(root, invalid_args[i]), -1);
+	}
+
+	// TEST: against prefixes not in trie or that start at level > 1
+	for (int i = 0; i < 8; ++i) {
+		ck_assert_int_eq(radix_find_prefix(root, invalid_prefixes[i]), 0);
+	}
 }
 END_TEST
 static TFun core_tests[] = {
@@ -170,6 +222,8 @@ static TFun core_tests[] = {
 	test_radix_remove_word_invalid,
 	test_radix_find_word_valid,
 	test_radix_find_word_invalid,
+	test_radix_find_prefix_valid,
+	test_radix_find_prefix_invalid,
 	NULL
 };
 
