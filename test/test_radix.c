@@ -69,6 +69,17 @@ const char *valid_prefixes[] = {
 	"picklin"
 };
 
+const char *invalid_prefixes[] = {
+	"ic",
+	"pand",
+	"pice",
+	"ply",
+	"placb",
+	"lay",
+	"anacea",
+	"plce"
+};
+
 void setup(void) {
 	root = radix_create();
 }
@@ -187,6 +198,21 @@ START_TEST (test_radix_find_prefix_valid) {
 	teardown();
 }
 END_TEST
+
+START_TEST (test_radix_find_prefix_invalid) {
+	populate_trie();
+
+	//TEST: against known errors, NULL, empty string and invalid chars
+	for (int i = 0; i < 6; ++i) {
+		ck_assert_int_eq(radix_find_prefix(root, invalid_args[i]), -1);
+	}
+
+	// TEST: against prefixes not in trie or that start at level > 1
+	for (int i = 0; i < 8; ++i) {
+		ck_assert_int_eq(radix_find_prefix(root, invalid_prefixes[i]), 0);
+	}
+}
+END_TEST
 static TFun core_tests[] = {
 
 	test_radix_create,
@@ -197,6 +223,7 @@ static TFun core_tests[] = {
 	test_radix_find_word_valid,
 	test_radix_find_word_invalid,
 	test_radix_find_prefix_valid,
+	test_radix_find_prefix_invalid,
 	NULL
 };
 
