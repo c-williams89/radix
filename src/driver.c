@@ -29,7 +29,7 @@ int main(void)
 	fclose(fp);
 
 	// Test for the known words:
-	char *test_words[] = {
+	const char *test_words[] = {
 		"places",
 		"pickling",
 		"placebo",
@@ -45,7 +45,7 @@ int main(void)
 	for (int i = 0; i < 10; ++i) {
 		radix_insert_word(root, test_words[i]);
 	}
-
+        radix_find_word(root, "anacea");
         // radix_insert_word(root, "pickle");
         // radix_insert_word(root, "p");
 
@@ -64,7 +64,7 @@ int main(void)
 	}
 
 	// Test for invalid words and prefixes
-	char *invalid_words[] = {
+	const char *invalid_words[] = {
 		"pla",
 		"banana",
 		"p",
