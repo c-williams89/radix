@@ -24,6 +24,7 @@ static int radix_find_rec(trie_t * root, char *word, bool b_to_remove);
 static void radix_delete_rec(trie_t * node);
 static void print_word_by_prefix(trie_t * node, char *word, int len);
 static trie_t *get_prefix_node(trie_t * node, char *word);
+static bool validate_input(char *word);
 
 // TODO: Add helper function to validate input as all lowercase a - z
 
@@ -34,20 +35,43 @@ trie_t *radix_create(void)
 
 int radix_insert_word(trie_t * trie, const char *word)
 {
+        int return_val = 0;
 	if ((!trie) || (!word)) {
 		fprintf(stderr, "radix_insert_word: Invalid argument - NULL\n");
-		return 0;
+		goto EXIT;
+                // return 0;
 	}
-	int return_val = 0;
+
+        if (strlen(word) < 1) {
+                fprintf(stderr, "radix_insert_word: Invalid argument - empty string\n");
+                goto EXIT;
+        }
+
+        if (!validate_input(word)) {
+                fprintf(stderr, "radix_insert_word: Invalid argument - must be ASCII lower case\n");
+                goto EXIT;
+        }
+
 	trie_t *tmp = trie;
 	int len = strlen(word);
 	char *word_cpy = calloc(len + 1, sizeof(char));
 	memcpy(word_cpy, word, len);
 	int index = CHAR_TO_INDEX(word[0]);
 
-	radix_insert_rec(tmp, word_cpy, len, index);
+        if (radix_find_rec(tmp->children[index], word, false)) {
+                free(word_cpy);
+                goto EXIT;
+        }
+        // int val = radix_insert_rec(tmp, word_cpy, len, index);
+        // printf("Val from %s is %d\n", word, val); 
+	if (radix_insert_rec(tmp, word_cpy, len, index)) {
+                printf("Val from %s is %d\n", word);
+                return_val = 1;
+        }
 	free(word_cpy);
-	return 1;
+	// return 1;
+EXIT:
+        return return_val;
 }
 
 int radix_remove_word(trie_t * trie, const char *word)
@@ -147,21 +171,29 @@ void radix_delete(trie_t ** trie)
 
 static trie_t *radix_insert_rec(trie_t * node, char *word, int len, int index)
 {
+        trie_t *cpy = NULL;
 	if (!node->children[index]) {
 		node->children[index] = radix_create_node(len);
 		memcpy(node->children[index]->word, word, len);
 		node->children[index]->b_is_word = true;
-		return node->children[index];
+                cpy = node->children[index];
+                goto EXIT;
+		// return node->children[index];
 	}
 	int len_to_pass = 0;
 	int new_index = 0;
-	trie_t *cpy = node->children[index];
+	cpy = node->children[index];
 	int root_word_len = strlen(cpy->word);
 	int new_word_len = strlen(word);
 	if (new_word_len == root_word_len) {
 		if (0 == (strncmp(word, cpy->word, root_word_len))) {
-			cpy->b_is_word = true;
-			return cpy;
+                        if (!cpy->b_is_word) {
+			        cpy->b_is_word = true;
+                                goto EXIT;
+                        }
+                        cpy = NULL;
+                        goto EXIT;
+			// return cpy;
 		}
 	}
 	int prefix_idx = get_prefix_index(word, cpy->word);
@@ -180,7 +212,7 @@ static trie_t *radix_insert_rec(trie_t * node, char *word, int len, int index)
 		if (root_word_len > new_word_len) {
 			tmp = radix_create_node(new_word_len);
 			memcpy(tmp->word, (cpy->word + prefix_idx),
-			       new_word_len);
+			       root_word_len);
 		} else {
 			tmp = radix_create_node(root_word_len);
 			memcpy(tmp->word, (cpy->word + prefix_idx),
@@ -215,10 +247,13 @@ static trie_t *radix_insert_rec(trie_t * node, char *word, int len, int index)
 			len_to_pass = strlen(word);
 			// return radix_insert_rec(cpy, word, strlen(word), new_index);
 		} else {
-			return NULL;
+                        goto EXIT;
+			// return NULL;
 		}
 	}
 	return radix_insert_rec(cpy, word, len_to_pass, new_index);
+EXIT:
+        return cpy;
 }
 
 static trie_t *radix_create_node(int len)
@@ -412,3 +447,12 @@ void radix_print_nodes(trie_t *trie)
     ;
 }
 */
+
+static bool validate_input(char *word) {
+        for (int i = 0; i < strlen(word); ++i) {
+                if ((word[i] < 'a') || (word[i] > 'z')) {
+                        return false;
+                }
+        }
+        return true;
+}

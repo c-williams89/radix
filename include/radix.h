@@ -14,7 +14,7 @@ typedef struct trie_t trie_t;
 //  [x] radix_insert_word
 //  [x] radix_remove_word
 //  [x] radix_find_word
-//  [] radix_find_prefix
+//  [x] radix_find_prefix
 //  [x] radix_delete
 
 /**
