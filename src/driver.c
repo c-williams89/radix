@@ -45,12 +45,12 @@ int main(void)
 	for (int i = 0; i < 10; ++i) {
 		radix_insert_word(root, test_words[i]);
 	}
-        if (radix_find_prefix(root, "p")) {
-                printf("Pan found");
-        }
-        radix_find_word(root, "anacea");
-        // radix_insert_word(root, "pickle");
-        // radix_insert_word(root, "p");
+	if (radix_find_prefix(root, "p")) {
+		printf("Pan found");
+	}
+	radix_find_word(root, "anacea");
+	// radix_insert_word(root, "pickle");
+	// radix_insert_word(root, "p");
 
 	radix_print(root);
 	// char *test_words[] =
@@ -74,16 +74,16 @@ int main(void)
 		"placebos",
 		"pic",
 		"pan",
-                "place"
+		"place"
 	};
 
 	printf("\n\nInvalid words test:\n");
 	for (int i = 0; i < 7; ++i) {
-	     if (radix_find_word(root, invalid_words[i])) {
-	             printf("%s:\tFound!\n", invalid_words[i]);
-	     } else {
-	             printf("%s:\tNot Found\n", invalid_words[i]);
-	     }
+		if (radix_find_word(root, invalid_words[i])) {
+			printf("%s:\tFound!\n", invalid_words[i]);
+		} else {
+			printf("%s:\tNot Found\n", invalid_words[i]);
+		}
 	}
 	// if (radix_remove_word(root, "pickling")) {
 	//         printf("pickling deleted\n");
@@ -96,6 +96,8 @@ int main(void)
 	// radix_find_prefix(root, "picklet");
 
 	radix_delete(&root);
+	radix_find_prefix(root, "pickle");
+        radix_delete(&root);
 	return 1;
 
 }

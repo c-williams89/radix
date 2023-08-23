@@ -29,24 +29,27 @@ trie_t *radix_create(void)
 {
 	return calloc(1, sizeof(trie_t));
 }
+
 // BUG: For insert, when bifurcating play from places, make sure child 'ce' is set to not a word
 int radix_insert_word(trie_t * trie, const char *word)
 {
-        int return_val = 0;
+	int return_val = 0;
 	if ((!trie) || (!word)) {
 		fprintf(stderr, "radix_insert_word: Invalid argument - NULL\n");
 		goto EXIT;
 	}
 
-        if (strlen(word) < 1) {
-                fprintf(stderr, "radix_insert_word: Invalid argument - empty string\n");
-                goto EXIT;
-        }
+	if (strlen(word) < 1) {
+		fprintf(stderr,
+			"radix_insert_word: Invalid argument - empty string\n");
+		goto EXIT;
+	}
 
-        if (!validate_input(word)) {
-                fprintf(stderr, "radix_insert_word: Invalid argument - must be ASCII lower case\n");
-                goto EXIT;
-        }
+	if (!validate_input(word)) {
+		fprintf(stderr,
+			"radix_insert_word: Invalid argument - must be ASCII lower case\n");
+		goto EXIT;
+	}
 
 	trie_t *tmp = trie;
 	int len = strlen(word);
@@ -54,112 +57,122 @@ int radix_insert_word(trie_t * trie, const char *word)
 	memcpy(word_cpy, word, len);
 	int index = CHAR_TO_INDEX(word[0]);
 
-        if (radix_find_rec(tmp->children[index], word, false)) {
-                free(word_cpy);
-                goto EXIT;
-        }
+	if (radix_find_rec(tmp->children[index], word, false)) {
+		free(word_cpy);
+		goto EXIT;
+	}
 
-        if (radix_insert_rec(tmp, word_cpy, len, index)) {
-                return_val = 1;
-        }
+	if (radix_insert_rec(tmp, word_cpy, len, index)) {
+		return_val = 1;
+	}
 
 	free(word_cpy);
-EXIT:
-        return return_val;
+ EXIT:
+	return return_val;
 }
 
 int radix_remove_word(trie_t * trie, const char *word)
 {
-        int return_val = -1;
-        if ((!trie) || (!word)) {
+	int return_val = -1;
+	if ((!trie) || (!word)) {
 		fprintf(stderr, "radix_remove_word: Invalid argument - NULL\n");
 		goto EXIT;
-                // return 0;
+		// return 0;
 	}
 
-        if (strlen(word) < 1) {
-                fprintf(stderr, "radix_remove_word: Invalid argument - empty string\n");
-                goto EXIT;
-        }
+	if (strlen(word) < 1) {
+		fprintf(stderr,
+			"radix_remove_word: Invalid argument - empty string\n");
+		goto EXIT;
+	}
 
-        if (!validate_input(word)) {
-                fprintf(stderr, "radix_remove_word: Invalid argument - must be ASCII lower case\n");
-                goto EXIT;
-        }
+	if (!validate_input(word)) {
+		fprintf(stderr,
+			"radix_remove_word: Invalid argument - must be ASCII lower case\n");
+		goto EXIT;
+	}
 
-        return_val = 0;
-        int index = CHAR_TO_INDEX(word[0]);
-        if (trie->children[index]) {
-                return_val = radix_find_rec(trie->children[index], word, true);
-        }
-EXIT:
-        return return_val;
+	return_val = 0;
+	int index = CHAR_TO_INDEX(word[0]);
+	if (trie->children[index]) {
+		return_val = radix_find_rec(trie->children[index], word, true);
+	}
+ EXIT:
+	return return_val;
 }
 
 int radix_find_word(trie_t * trie, const char *target)
 {
-        int return_val = -1;
+	int return_val = -1;
 
-        if ((!trie) || (!target)) {
-                fprintf(stderr, "radix_find_word: Invalid argument - NULL\n");
-                goto EXIT;
-        }
+	if ((!trie) || (!target)) {
+		fprintf(stderr, "radix_find_word: Invalid argument - NULL\n");
+		goto EXIT;
+	}
 
-        if (strlen(target) < 1) {
-                fprintf(stderr, "radix_find_word: Invalid argument - empty string\n");
-                goto EXIT;
-        }
+	if (strlen(target) < 1) {
+		fprintf(stderr,
+			"radix_find_word: Invalid argument - empty string\n");
+		goto EXIT;
+	}
 
-        if (!validate_input(target)) {
-                fprintf(stderr, "radix_find_word: Invalid argument - must be ASCII lower case\n");
-                goto EXIT;
-        }
+	if (!validate_input(target)) {
+		fprintf(stderr,
+			"radix_find_word: Invalid argument - must be ASCII lower case\n");
+		goto EXIT;
+	}
 
-        return_val = 0;
-        int index = CHAR_TO_INDEX(target[0]);
-        if (trie->children[index]) {
-                return_val = radix_find_rec(trie->children[index], target, false);
-        }
-EXIT:
-        return return_val;
+	return_val = 0;
+	int index = CHAR_TO_INDEX(target[0]);
+	if (trie->children[index]) {
+		return_val =
+		    radix_find_rec(trie->children[index], target, false);
+	}
+ EXIT:
+	return return_val;
 }
 
 int radix_find_prefix(trie_t * trie, const char *prefix)
 {
-        int return_status = -1;
+	int return_status = -1;
 
-        if ((!trie) || (!prefix)) {
-                fprintf(stderr, "radix_find_prefix: Invalid argument - NULL\n");
-                goto EXIT;
-        }
+	if ((!trie) || (!prefix)) {
+		fprintf(stderr, "radix_find_prefix: Invalid argument - NULL\n");
+		goto EXIT;
+	}
 
-        if (strlen(prefix) < 1) {
-                fprintf(stderr, "radix_find_prefix: Invalid argument - empty string\n");
-                goto EXIT;
-        }
+	if (strlen(prefix) < 1) {
+		fprintf(stderr,
+			"radix_find_prefix: Invalid argument - empty string\n");
+		goto EXIT;
+	}
 
-        if (!validate_input(prefix)) {
-                fprintf(stderr, "radix_find_prefix: Invalid argument - must be ASCII lower case\n");
-                goto EXIT;
-        }
+	if (!validate_input(prefix)) {
+		fprintf(stderr,
+			"radix_find_prefix: Invalid argument - must be ASCII lower case\n");
+		goto EXIT;
+	}
 
 	int index = CHAR_TO_INDEX(prefix[0]);
-	int len = strlen(prefix);
-	char *word = calloc(len, sizeof(char));
-	memcpy(word, prefix, len);
 	if (!trie->children[index]) {
-                fprintf(stderr, "radix_find_prefix: Prefix '%s' not found\n", prefix);
+		fprintf(stderr, "radix_find_prefix: Prefix '%s' not found\n",
+			prefix);
 		return_status = 0;
 		goto EXIT;
 	}
+	int len = strlen(prefix);
+	char *word = calloc(len, sizeof(char));
+	memcpy(word, prefix, len);
 	trie_t *tmp = trie->children[index];
 	trie_t *node = get_prefix_node(tmp, prefix);
 	if (!node) {
-		fprintf(stderr, "radix_find_prefix: Prefix '%s' not found\n", prefix);
-                return_status = 0;
+		fprintf(stderr, "radix_find_prefix: Prefix '%s' not found\n",
+			prefix);
+		free(word);
+		return_status = 0;
 		goto EXIT;
 	}
-        return_status = 1;
+	return_status = 1;
 	printf("Prefix: %s\n", prefix);
 	char *new_prefix = calloc(50, sizeof(char));
 	while (tmp != node) {
@@ -170,8 +183,8 @@ int radix_find_prefix(trie_t * trie, const char *prefix)
 		}
 	}
 	print_word_by_prefix(tmp, new_prefix, len);
-        free(word);
-        free(new_prefix);
+	free(word);
+	free(new_prefix);
  EXIT:
 	return return_status;
 }
@@ -191,17 +204,18 @@ void radix_delete(trie_t ** trie)
 	}
 	free(tmp->word);
 	free(tmp);
+	*trie = NULL;
 }
 
 static trie_t *radix_insert_rec(trie_t * node, char *word, int len, int index)
 {
-        trie_t *cpy = NULL;
+	trie_t *cpy = NULL;
 	if (!node->children[index]) {
 		node->children[index] = radix_create_node(len);
 		memcpy(node->children[index]->word, word, len);
 		node->children[index]->b_is_word = true;
-                cpy = node->children[index];
-                goto EXIT;
+		cpy = node->children[index];
+		goto EXIT;
 		// return node->children[index];
 	}
 	int len_to_pass = 0;
@@ -211,12 +225,12 @@ static trie_t *radix_insert_rec(trie_t * node, char *word, int len, int index)
 	int new_word_len = strlen(word);
 	if (new_word_len == root_word_len) {
 		if (0 == (strncmp(word, cpy->word, root_word_len))) {
-                        if (!cpy->b_is_word) {
-			        cpy->b_is_word = true;
-                                goto EXIT;
-                        }
-                        cpy = NULL;
-                        goto EXIT;
+			if (!cpy->b_is_word) {
+				cpy->b_is_word = true;
+				goto EXIT;
+			}
+			cpy = NULL;
+			goto EXIT;
 			// return cpy;
 		}
 	}
@@ -271,13 +285,13 @@ static trie_t *radix_insert_rec(trie_t * node, char *word, int len, int index)
 			len_to_pass = strlen(word);
 			// return radix_insert_rec(cpy, word, strlen(word), new_index);
 		} else {
-                        goto EXIT;
+			goto EXIT;
 			// return NULL;
 		}
 	}
 	return radix_insert_rec(cpy, word, len_to_pass, new_index);
-EXIT:
-        return cpy;
+ EXIT:
+	return cpy;
 }
 
 static trie_t *radix_create_node(int len)
@@ -427,23 +441,24 @@ static trie_t *get_prefix_node(trie_t * node, const char *word)
 		goto EXIT;
 	}
 
-        int root_word_len = strlen(node->word);
+	int root_word_len = strlen(node->word);
 	int word_len = strlen(word);
 	int prefix = get_prefix_index(node->word, word);
 	int next_index = 0;
 
-        if (root_word_len >= word_len) {
-                if (0 == strncmp(node->word, word, word_len)) {
-                        tmp = node;
-                        goto EXIT;
-                }
-        } else {
-                if (0 == strncmp(node->word, word, root_word_len)) {
-                        word += prefix;
-                        next_index = CHAR_TO_INDEX(word[0]);
-                        return get_prefix_node(node->children[next_index], word);
-                }
-        }
+	if (root_word_len >= word_len) {
+		if (0 == strncmp(node->word, word, word_len)) {
+			tmp = node;
+			goto EXIT;
+		}
+	} else {
+		if (0 == strncmp(node->word, word, root_word_len)) {
+			word += prefix;
+			next_index = CHAR_TO_INDEX(word[0]);
+			return get_prefix_node(node->children[next_index],
+					       word);
+		}
+	}
  EXIT:
 	return tmp;
 }
@@ -465,7 +480,7 @@ static void print_word_by_prefix(trie_t * node, char *prefix, int len)
 					     len + new_len);
 		}
 	}
-        free(word);
+	free(word);
 }
 
 /*
@@ -475,12 +490,13 @@ void radix_print_nodes(trie_t *trie)
 }
 */
 
-static bool validate_input(const char *word) {
-        int len = strlen(word);
-        for (int i = 0; i < len; ++i) {
-                if ((word[i] < 'a') || (word[i] > 'z')) {
-                        return false;
-                }
-        }
-        return true;
+static bool validate_input(const char *word)
+{
+	int len = strlen(word);
+	for (int i = 0; i < len; ++i) {
+		if ((word[i] < 'a') || (word[i] > 'z')) {
+			return false;
+		}
+	}
+	return true;
 }
