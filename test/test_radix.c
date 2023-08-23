@@ -21,7 +21,7 @@ struct trie_t {
 
 trie_t *root;
 
-char *valid_words[] = {
+const char *valid_words[] = {
 	"places",
 	"pickling",
 	"placebo",
@@ -34,7 +34,7 @@ char *valid_words[] = {
 	"pickles"
 };
 
-char *invalid_words[] = {
+const char *invalid_words[] = {
 	NULL,
 	"",
 	" ",
@@ -64,6 +64,7 @@ START_TEST(test_radix_create)
 	ck_assert_ptr_ne(root, NULL);
 	ck_assert_ptr_ne(root->children, NULL);
 	ck_assert_int_eq(root->b_is_word, 0);
+	teardown();
 } END_TEST 
 
 // NOTE: radix_insert returns non-zero on success, 0 on failure
@@ -118,6 +119,17 @@ START_TEST (test_radix_remove_word_invalid) {
 
 }
 END_TEST
+
+// NOTE: radix_find_word returns 1 if found, else 0. -1 on error
+START_TEST (test_radix_find_word_valid) {
+	populate_trie();
+	for (int i = 0; i < 10; ++i) {
+		ck_assert_int_eq(radix_find_word(root, valid_words[i]), 1);
+	}
+	
+	teardown();
+}
+END_TEST
 static TFun core_tests[] = {
 
 	test_radix_create,
@@ -125,6 +137,7 @@ static TFun core_tests[] = {
 	test_radix_insert_invalid,
 	test_radix_remove_word_valid,
 	test_radix_remove_word_invalid,
+	test_radix_find_word_valid,
 	NULL
 };
 
