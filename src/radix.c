@@ -43,10 +43,8 @@ int radix_insert_word(trie_t *trie, const char *word)
         int len = strlen(word);
         char *word_cpy = calloc(len + 1, sizeof(char));
         memcpy(word_cpy, word, len);
-        // strncpy(word_cpy, word, len);
         int index = CHAR_TO_INDEX(word[0]);
         
-        // if (radix_find_rec(trie->children[index]), )
         radix_insert_rec(tmp, word_cpy, len, index);
         free(word_cpy);
         return 1;
@@ -64,8 +62,6 @@ int radix_remove_word(trie_t *trie, const char *word)
                         return radix_find_rec(trie->children[i], word, true);
                 }
         }
-
-
 }
 
 
@@ -102,25 +98,27 @@ int radix_find_prefix(trie_t *trie, const char *prefix)
         }
 
         int index = CHAR_TO_INDEX(prefix[0]);
-        printf("Index is : %d\n", index);
         int len = strlen(prefix);
         char *word = calloc(len, sizeof(char));
         memcpy(word, prefix, len);
         if (!trie->children[index]) {
                 return_status = 0;
                 goto EXIT;
-                // printf("Prefix: %s\nWords:\n", prefix);
-                // print_word_by_prefix(trie->children[index], word, len);
         }
         trie_t *tmp = trie->children[index];
         bool b_prefix_found;
-        // while (!b_prefix_found) {
-        //         if (0 == strncmp(tmp->word, prefix, len)) {
-        //                 if ()
-        //         }
-        // }
         trie_t *node = get_prefix_node(tmp, prefix);
-        // trie_t *node = radix_find_rec(tmp, prefix, false);
+        if (!node) {
+                fprintf(stderr, "radix_find_prefix: Prefix not found\n");
+                goto EXIT;
+        }
+        printf("Prefix: %s\n", prefix);
+        for (int i = 0; i < NUM_CHARS; ++i) {
+                if (node->children[i]) {
+                        print_word_by_prefix(node->children[i], prefix, len);
+                }
+        }
+        // print_word_by_prefix(node, prefix, len);
         // printf("prefix node: %s\n", node->word);
 EXIT:
         return return_status;
@@ -328,32 +326,28 @@ static trie_t *get_prefix_node(trie_t *node, char *word) {
                         tmp = node;
                         goto EXIT;
                 }
-        } else {
-                word += prefix;
-                next_index = CHAR_TO_INDEX(word[0]);
         }
+        word += prefix;
+        next_index = CHAR_TO_INDEX(word[0]);
+        
         return get_prefix_node(node->children[next_index], word);
 EXIT:
         return tmp;
 }
 
-static void print_word_by_prefix(trie_t *node, char *word, int len) {
-        printf("%s\n", node->word);
-        printf("Word: %s\n", word);
-
-        bool prefix_found = false;
-        while (!prefix_found)
-        {
-                
+static void print_word_by_prefix(trie_t *node, char *prefix, int len) {
+        char *word = calloc(len, sizeof(char));
+        strncpy(word, prefix, len);
+        int new_len = strlen(node->word);
+        char *tmp = reallocarray(word, len + new_len, sizeof(char));
+        word = tmp;
+        strncat(word, node->word, new_len);
+        if (node->b_is_word) {
+                printf("Word: %s\n", word);
         }
-        
-
         for (int i = 0; i < NUM_CHARS; ++i) {
                 if (node->children[i]) {
-                        int new_len = strlen(node->children[i]->word);
-                        char *tmp = reallocarray(word, len + new_len, sizeof(char));
-                        strncat(word, node->children[i]->word, new_len + len);
-                        printf("New word: %s\n", word);
+                        print_word_by_prefix(node->children[i], word, len + new_len);
                 }
         }
 }

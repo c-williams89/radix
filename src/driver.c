@@ -54,7 +54,7 @@ int main(void)
         printf("\n\nValid words test:\n");
 	for (int i = 0; i < 10; ++i) {
 		if (radix_find_word(root, test_words[i])) {
-			printf("%s\t:Found!\n", test_words[i]);
+			printf("%s:\tFound!\n", test_words[i]);
 		} else {
 			printf("%s:\tNot Found\n", test_words[i]);
 		}
@@ -87,7 +87,9 @@ int main(void)
 	// 	printf("pickling not found\n");
 	// }
 
-        radix_find_prefix(root, "pickles");
+        radix_find_prefix(root, "p");
+        // radix_find_prefix(root, "picklet");
+
 
         radix_delete(&root);
 	return 1;
