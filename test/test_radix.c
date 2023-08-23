@@ -5,8 +5,8 @@
 
 // TODO: Functions to write:
 //  [x] test_radix_create
-//  [] test_radix_insert_word
-//  [] test_radix_remove_word
+//  [x] test_radix_insert_word
+//  [x] test_radix_remove_word
 //  [] test_radix_find_word
 //  [] test_radix_find_prefix
 //  [] test_radix_delete
@@ -21,12 +21,41 @@ struct trie_t {
 
 trie_t *root;
 
+char *valid_words[] = {
+	"places",
+	"pickling",
+	"placebo",
+	"play",
+	"picture",
+	"pickets",
+	"panacea",
+	"pick",
+	"picket",
+	"pickles"
+};
+
+char *invalid_words[] = {
+	NULL,
+	"",
+	" ",
+	"Pickle",
+	"!ickle",
+	"pickl!"
+};
+
 void setup(void) {
 	root = radix_create();
 }
 
 void teardown(void) {
 	radix_delete(&root);
+}
+
+void populate_trie() {
+	setup();
+	for (int i = 0; i < 10; ++i) {
+		radix_insert_word(root, valid_words[i]);
+	}
 }
 
 START_TEST(test_radix_create)
@@ -39,27 +68,63 @@ START_TEST(test_radix_create)
 
 // NOTE: radix_insert returns non-zero on success, 0 on failure
 START_TEST(test_radix_insert_valid) {
+	setup();
 	ck_assert_int_ne(radix_insert_word(root, "pickle"), 0);
 	ck_assert_int_ne(radix_insert_word(root, "p"), 0);
+	teardown();
 } END_TEST
 
 START_TEST(test_radix_insert_invalid) {
+	setup();
+	
+	// Test aginst known errors, NULL, empty string, and invalid chars
 	ck_assert_int_eq(radix_insert_word(NULL, "p"), 0);
-	ck_assert_int_eq(radix_insert_word(root, NULL), 0);
-	ck_assert_int_eq(radix_insert_word(root, ""), 0);
-	ck_assert_int_eq(radix_insert_word(root, "Pickle"), 0);
-	ck_assert_int_eq(radix_insert_word(root, "!ickle"), 0);
+	for (int i = 0; i < 6; ++i) {
+		ck_assert_int_eq(radix_insert_word(root, invalid_words[i]), 0);
+	}
+	
+	// Test against already added word
 	ck_assert_int_ne(radix_insert_word(root, "pickle"), 0);
 	ck_assert_int_eq(radix_insert_word(root, "pickle"), 0);
+	teardown();
 }
 END_TEST
 
+// NOTE: radix_remove returns 1 if removed else 0, -1 on error
+START_TEST (test_radix_remove_word_valid) {
+	populate_trie();
+	for (int i = 0; i < 10; ++i) {
+		ck_assert_int_eq(radix_remove_word(root, valid_words[i]), 1);
+	}
+	teardown();
+} END_TEST
 
+START_TEST (test_radix_remove_word_invalid) {
+	populate_trie();
+	
+	// Test against known errors, NULL, empty string and invalid chars
+	ck_assert_int_eq(radix_remove_word(NULL, "pickles"), -1);
+	for (int i = 0; i < 6; ++i) {
+		ck_assert_int_eq(radix_remove_word(root, invalid_words[i]), -1);
+	}
+
+	// Test against words not in trie
+	ck_assert_int_eq(radix_remove_word(root,"pickle"), 0);
+	
+	// Test against word previously removed
+	ck_assert_int_eq(radix_remove_word(root, "pickles"), 1);
+	ck_assert_int_eq(radix_remove_word(root, "pickles"), 0);
+	teardown();
+
+}
+END_TEST
 static TFun core_tests[] = {
 
 	test_radix_create,
 	test_radix_insert_valid,
 	test_radix_insert_invalid,
+	test_radix_remove_word_valid,
+	test_radix_remove_word_invalid,
 	NULL
 };
 
@@ -69,10 +134,10 @@ Suite *test_radix(void)
 	TFun *curr = NULL;
 	TCase *tc_core = tcase_create("core");
 	curr = core_tests;
-	tcase_add_checked_fixture(tc_core, setup, teardown);
 	while (*curr) {
 		tcase_add_test(tc_core, *curr++);
 	}
+
 	suite_add_tcase(s, tc_core);
 	return s;
 }
