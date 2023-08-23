@@ -5,7 +5,7 @@
 
 // TODO: Functions to write:
 //  [x] test_radix_create
-//  [] test_radix_insert_word
+//  [x] test_radix_insert_word
 //  [] test_radix_remove_word
 //  [] test_radix_find_word
 //  [] test_radix_find_prefix
@@ -29,6 +29,25 @@ void teardown(void) {
 	radix_delete(&root);
 }
 
+void populate_trie() {
+	setup();
+	char *test_words[] = {
+		"places",
+		"pickling",
+		"placebo",
+		"play",
+		"picture",
+		"pickets",
+		"panacea",
+		"pick",
+		"picket",
+		"pickles"
+	};
+	for (int i = 0; i < 10; ++i) {
+		radix_insert_word(root, test_words[i]);
+	}
+}
+
 START_TEST(test_radix_create)
 {
 	root = radix_create();
@@ -39,11 +58,14 @@ START_TEST(test_radix_create)
 
 // NOTE: radix_insert returns non-zero on success, 0 on failure
 START_TEST(test_radix_insert_valid) {
+	setup();
 	ck_assert_int_ne(radix_insert_word(root, "pickle"), 0);
 	ck_assert_int_ne(radix_insert_word(root, "p"), 0);
+	teardown();
 } END_TEST
 
 START_TEST(test_radix_insert_invalid) {
+	setup();
 	ck_assert_int_eq(radix_insert_word(NULL, "p"), 0);
 	ck_assert_int_eq(radix_insert_word(root, NULL), 0);
 	ck_assert_int_eq(radix_insert_word(root, ""), 0);
@@ -51,15 +73,24 @@ START_TEST(test_radix_insert_invalid) {
 	ck_assert_int_eq(radix_insert_word(root, "!ickle"), 0);
 	ck_assert_int_ne(radix_insert_word(root, "pickle"), 0);
 	ck_assert_int_eq(radix_insert_word(root, "pickle"), 0);
+	teardown();
 }
 END_TEST
 
+// NOTE: radix_remove returns 1 if removed else 0, -1 on error
+START_TEST (test_radix_remove_word_valid) {
+	populate_trie();
+	ck_assert_int_eq(radix_remove_word(root, "pickles"), 1);
+	ck_assert_int_ne(root, 0);
+	teardown();
+} END_TEST
 
 static TFun core_tests[] = {
 
 	test_radix_create,
 	test_radix_insert_valid,
 	test_radix_insert_invalid,
+	test_radix_remove_word_valid,
 	NULL
 };
 
@@ -69,7 +100,7 @@ Suite *test_radix(void)
 	TFun *curr = NULL;
 	TCase *tc_core = tcase_create("core");
 	curr = core_tests;
-	tcase_add_checked_fixture(tc_core, setup, teardown);
+	// tcase_add_checked_fixture(tc_core, setup, teardown);
 	while (*curr) {
 		tcase_add_test(tc_core, *curr++);
 	}

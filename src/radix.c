@@ -62,14 +62,9 @@ int radix_insert_word(trie_t * trie, const char *word)
                 free(word_cpy);
                 goto EXIT;
         }
-        // int val = radix_insert_rec(tmp, word_cpy, len, index);
-        // printf("Val from %s is %d\n", word, val); 
-	if (radix_insert_rec(tmp, word_cpy, len, index)) {
-                printf("Val from %s is %d\n", word);
-                return_val = 1;
-        }
+
+	return_val = radix_insert_rec(tmp, word_cpy, len, index);
 	free(word_cpy);
-	// return 1;
 EXIT:
         return return_val;
 }
