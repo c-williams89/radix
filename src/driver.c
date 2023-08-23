@@ -45,6 +45,10 @@ int main(void)
 	for (int i = 0; i < 10; ++i) {
 		radix_insert_word(root, test_words[i]);
 	}
+
+        // radix_insert_word(root, "pickle");
+        // radix_insert_word(root, "p");
+
 	radix_print(root);
 	// char *test_words[] =
 	//     { "pick", "pla", "play", "banana", "pickling", "p", "placebos",
@@ -66,17 +70,18 @@ int main(void)
 		"p",
 		"placebos",
 		"pic",
-		"pan"
+		"pan",
+                "place"
 	};
 
-	// printf("\n\nInvalid words test:\n");
-	// for (int i = 0; i < 6; ++i) {
-	//      if (radix_find_word(root, invalid_words[i])) {
-	//              printf("%s:\tFound!\n", invalid_words[i]);
-	//      } else {
-	//              printf("%s:\tNot Found\n", invalid_words[i]);
-	//      }
-	// }
+	printf("\n\nInvalid words test:\n");
+	for (int i = 0; i < 7; ++i) {
+	     if (radix_find_word(root, invalid_words[i])) {
+	             printf("%s:\tFound!\n", invalid_words[i]);
+	     } else {
+	             printf("%s:\tNot Found\n", invalid_words[i]);
+	     }
+	}
 	// if (radix_remove_word(root, "pickling")) {
 	//         printf("pickling deleted\n");
 	// }
