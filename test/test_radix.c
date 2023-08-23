@@ -7,10 +7,10 @@
 //  [x] test_radix_create
 //  [x] test_radix_insert_word
 //  [x] test_radix_remove_word
-//  [] test_radix_find_word
+//  [x] test_radix_find_word
 //  [] test_radix_find_prefix
 //  [] test_radix_delete
-// struct trie_t trie_t;
+
 #define NUM_CHARS 26
 
 struct trie_t {

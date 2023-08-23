@@ -89,7 +89,7 @@ int main(void)
 	//      printf("pickling not found\n");
 	// }
 
-	radix_find_prefix(root, "place");
+	radix_find_prefix(root, "picklest");
 	// radix_find_prefix(root, "picklet");
 
 	radix_delete(&root);
