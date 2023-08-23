@@ -25,13 +25,11 @@ static void print_word_by_prefix(trie_t * node, char *word, int len);
 static trie_t *get_prefix_node(trie_t * node, const char *word);
 static bool validate_input(const char *word);
 
-// TODO: Add helper function to validate input as all lowercase a - z
-
 trie_t *radix_create(void)
 {
 	return calloc(1, sizeof(trie_t));
 }
-
+// BUG: For insert, when bifurcating play from places, make sure child 'ce' is set to not a word
 int radix_insert_word(trie_t * trie, const char *word)
 {
         int return_val = 0;
@@ -134,19 +132,37 @@ EXIT:
 
 int radix_find_prefix(trie_t * trie, const char *prefix)
 {
-	int return_status = 0;
-	if ((!trie) || (!prefix)) {
-		fprintf(stderr, "radix_find_prefix: Invalid argument - NULL\n");
-		return_status = -1;
-		goto EXIT;
-	}
+        int return_status = -1;
 
-	if (strlen(prefix) < 1) {
-		fprintf(stderr,
-			"radix_find_prefix: Invalid argument - 'prefix' must not be empty string\n");
-		return_status = -1;
-		goto EXIT;
-	}
+        if ((!trie) || (!prefix)) {
+                fprintf(stderr, "radix_find_prefix: Invalid argument - NULL\n");
+                goto EXIT;
+        }
+
+        if (strlen(prefix) < 1) {
+                fprintf(stderr, "radix_find_prefix: Invalid argument - empty string\n");
+                goto EXIT;
+        }
+
+        if (!validate_input(prefix)) {
+                fprintf(stderr, "radix_find_prefix: Invalid argument - must be ASCII lower case\n");
+                goto EXIT;
+        }
+
+
+	// // int return_status = 0;
+	// if ((!trie) || (!prefix)) {
+	// 	fprintf(stderr, "radix_find_prefix: Invalid argument - NULL\n");
+	// 	return_status = -1;
+	// 	goto EXIT;
+	// }
+
+	// if (strlen(prefix) < 1) {
+	// 	fprintf(stderr,
+	// 		"radix_find_prefix: Invalid argument - 'prefix' must not be empty string\n");
+	// 	return_status = -1;
+	// 	goto EXIT;
+	// }
 
 	int index = CHAR_TO_INDEX(prefix[0]);
 	int len = strlen(prefix);
@@ -160,8 +176,10 @@ int radix_find_prefix(trie_t * trie, const char *prefix)
 	trie_t *node = get_prefix_node(tmp, prefix);
 	if (!node) {
 		fprintf(stderr, "radix_find_prefix: Prefix not found\n");
+                return_status = 0;
 		goto EXIT;
 	}
+        return_status = 1;
 	printf("Prefix: %s\n", prefix);
 	char *new_prefix = calloc(50, sizeof(char));
 	while (tmp != node) {

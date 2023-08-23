@@ -45,6 +45,7 @@ int main(void)
 	for (int i = 0; i < 10; ++i) {
 		radix_insert_word(root, test_words[i]);
 	}
+        radix_find_prefix(root, "pan");
         radix_find_word(root, "anacea");
         // radix_insert_word(root, "pickle");
         // radix_insert_word(root, "p");
