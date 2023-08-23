@@ -24,7 +24,7 @@ static int radix_find_rec(trie_t * root, char *word, bool b_to_remove);
 static void radix_delete_rec(trie_t * node);
 static void print_word_by_prefix(trie_t * node, char *word, int len);
 static trie_t *get_prefix_node(trie_t * node, char *word);
-static bool validate_input(char *word);
+static bool validate_input(const char *word);
 
 // TODO: Add helper function to validate input as all lowercase a - z
 
@@ -72,7 +72,7 @@ EXIT:
 int radix_remove_word(trie_t * trie, const char *word)
 {
         int return_val = -1;
-        	if ((!trie) || (!word)) {
+        if ((!trie) || (!word)) {
 		fprintf(stderr, "radix_remove_word: Invalid argument - NULL\n");
 		goto EXIT;
                 // return 0;
@@ -88,30 +88,55 @@ int radix_remove_word(trie_t * trie, const char *word)
                 goto EXIT;
         }
 
-	for (int i = 0; i < NUM_CHARS; ++i) {
-		if (trie->children[i]) {
-			return_val = radix_find_rec(trie->children[i], word, true);
-		}
-	}
+        return_val = 0;
+        int index = CHAR_TO_INDEX(word[0]);
+        if (trie->children[index]) {
+                return_val = radix_find_rec(trie->children[index], word, true);
+        }
+	// for (int i = 0; i < NUM_CHARS; ++i) {
+	// 	if (trie->children[i]) {
+	// 		return_val = radix_find_rec(trie->children[i], word, true);
+        //                 goto EXIT;
+	// 	}
+	// }
 EXIT:
         return return_val;
 }
 
 int radix_find_word(trie_t * trie, const char *target)
 {
-	if ((!trie) || (!target) || (strlen(target) < 1)) {
-		fprintf(stderr, "radix_find_word: Invalid argument\n");
-		return -1;
-	}
+        int return_val = -1;
 
-	for (int i = 0; i < NUM_CHARS; ++i) {
-		if (trie->children[i]) {
+        if ((!trie) || (!target)) {
+                fprintf(stderr, "radix_find_word: Invalid argument - NULL\n");
+                goto EXIT;
+        }
 
-			if (radix_find_rec(trie->children[i], target, false)) {
-				return 1;
-			}
-		}
-	}
+        if (strlen(target) < 1) {
+                fprintf(stderr, "radix_find_word: Invalid argument - empty string\n");
+                goto EXIT;
+        }
+
+        if (!validate_input(target)) {
+                fprintf(stderr, "radix_find_word: Invalid argument - must be ASCII lower case\n");
+                goto EXIT;
+        }
+
+        return_val = 0;
+        int index = CHAR_TO_INDEX(target[0]);
+        if (trie->children[index]) {
+                return_val = radix_find_rec(trie->children[index], target, false);
+                // goto EXIT;
+        }
+	// for (int i = 0; i < NUM_CHARS; ++i) {
+	// 	if (trie->children[i]) {
+        //                 printf("Should call once\n");
+        //                 return_val = radix_find_rec(trie->children[i], target, false);
+        //                 goto EXIT;
+	// 	}
+	// }
+EXIT:
+        return return_val;
 }
 
 int radix_find_prefix(trie_t * trie, const char *prefix)
@@ -457,7 +482,7 @@ void radix_print_nodes(trie_t *trie)
 }
 */
 
-static bool validate_input(char *word) {
+static bool validate_input(const char *word) {
         for (int i = 0; i < strlen(word); ++i) {
                 if ((word[i] < 'a') || (word[i] > 'z')) {
                         return false;

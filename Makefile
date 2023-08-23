@@ -3,7 +3,8 @@
 CC := gcc-9
 
 # compile flags
-CFLAGS += -std=c18 -Wall -lm
+CFLAGS += -std=c18 -Wall -Wextra -Wpedantic -Waggregate-return -Wwrite-strings
+CFLAGS += -Wvla -Wfloat-equal
 
 DFLAGS := -g3
 VFLAGS += --leak-check=full --track-origins=yes

@@ -21,7 +21,7 @@ struct trie_t {
 
 trie_t *root;
 
-char *valid_words[] = {
+const char *valid_words[] = {
 	"places",
 	"pickling",
 	"placebo",
@@ -34,13 +34,25 @@ char *valid_words[] = {
 	"pickles"
 };
 
-char *invalid_words[] = {
+const char *invalid_args[] = {
 	NULL,
 	"",
 	" ",
 	"Pickle",
 	"!ickle",
 	"pickl!"
+};
+
+const char *invalid_words[] = {
+	"p",
+	"a",
+	"laces",
+	"anacea",
+	"pic",
+	"pickl",
+	"pla",
+	"placeb",
+	"pi"
 };
 
 void setup(void) {
@@ -64,6 +76,7 @@ START_TEST(test_radix_create)
 	ck_assert_ptr_ne(root, NULL);
 	ck_assert_ptr_ne(root->children, NULL);
 	ck_assert_int_eq(root->b_is_word, 0);
+	teardown();
 } END_TEST 
 
 // NOTE: radix_insert returns non-zero on success, 0 on failure
@@ -80,7 +93,7 @@ START_TEST(test_radix_insert_invalid) {
 	// Test aginst known errors, NULL, empty string, and invalid chars
 	ck_assert_int_eq(radix_insert_word(NULL, "p"), 0);
 	for (int i = 0; i < 6; ++i) {
-		ck_assert_int_eq(radix_insert_word(root, invalid_words[i]), 0);
+		ck_assert_int_eq(radix_insert_word(root, invalid_args[i]), 0);
 	}
 	
 	// Test against already added word
@@ -105,17 +118,47 @@ START_TEST (test_radix_remove_word_invalid) {
 	// Test against known errors, NULL, empty string and invalid chars
 	ck_assert_int_eq(radix_remove_word(NULL, "pickles"), -1);
 	for (int i = 0; i < 6; ++i) {
-		ck_assert_int_eq(radix_remove_word(root, invalid_words[i]), -1);
+		ck_assert_int_eq(radix_remove_word(root, invalid_args[i]), -1);
 	}
 
 	// Test against words not in trie
-	ck_assert_int_eq(radix_remove_word(root,"pickle"), 0);
+	for (int i = 0; i < 9; ++i) {
+		ck_assert_int_eq(radix_remove_word(root, invalid_words[i]), 0);
+	}
 	
 	// Test against word previously removed
 	ck_assert_int_eq(radix_remove_word(root, "pickles"), 1);
 	ck_assert_int_eq(radix_remove_word(root, "pickles"), 0);
 	teardown();
 
+}
+END_TEST
+
+// NOTE: radix_find_word returns 1 if found, else 0. -1 on error
+START_TEST (test_radix_find_word_valid) {
+	populate_trie();
+	for (int i = 0; i < 10; ++i) {
+		ck_assert_int_eq(radix_find_word(root, valid_words[i]), 1);
+	}
+	
+	teardown();
+}
+END_TEST
+
+START_TEST (test_radix_find_word_invalid) {
+	populate_trie();
+
+	// Test against known errors, NULL, empty string and invalid chars
+	for (int i = 0; i < 6; ++i) {
+		ck_assert_int_eq(radix_find_word(root, invalid_args[i]), -1);
+	}
+
+	// Test against node strings, or partial strings in trie but not marked as word
+	for (int i = 0; i < 9; ++i) {
+		ck_assert_int_eq(radix_find_word(root, invalid_words[i]), 0);
+	}
+
+	teardown();
 }
 END_TEST
 static TFun core_tests[] = {
@@ -125,6 +168,8 @@ static TFun core_tests[] = {
 	test_radix_insert_invalid,
 	test_radix_remove_word_valid,
 	test_radix_remove_word_invalid,
+	test_radix_find_word_valid,
+	test_radix_find_word_invalid,
 	NULL
 };
 
