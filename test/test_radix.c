@@ -9,7 +9,7 @@
 //  [x] test_radix_remove_word
 //  [x] test_radix_find_word
 //  [x] test_radix_find_prefix
-//  [] test_radix_delete
+//  [x] test_radix_delete
 
 #define NUM_CHARS 26
 
