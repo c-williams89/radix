@@ -2,6 +2,8 @@
 doc/radix_description.pdf
 doc/radix_rubric.pdf
 doc/radix_rubric.adoc
+doc/*.md
+doc/*.tex
 
 # Ignore helper text
 letter_index.txt
