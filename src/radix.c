@@ -54,6 +54,12 @@ int radix_insert_word(trie_t * trie, const char *word)
 	trie_t *tmp = trie;
 	int len = strlen(word);
 	char *word_cpy = calloc(len + 1, sizeof(char));
+        if (!word_cpy) {
+                perror("radix_insert_word");
+                errno = 0;
+                goto EXIT;
+        }
+
 	memcpy(word_cpy, word, len);
 	int index = CHAR_TO_INDEX(word[0]);
 
@@ -77,7 +83,6 @@ int radix_remove_word(trie_t * trie, const char *word)
 	if ((!trie) || (!word)) {
 		fprintf(stderr, "radix_remove_word: Invalid argument - NULL\n");
 		goto EXIT;
-		// return 0;
 	}
 
 	if (strlen(word) < 1) {

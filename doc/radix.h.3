@@ -1,7 +1,7 @@
 '\" et
 .TH radix.h "Custom Library" 2023 "WO1 Clayton Williams" "Custom Library Programmer's Manual"
 .SH PROLOG
-This manual page is part of WO1 Clayton Williams's Programmer's manual custom libraries and functions.
+This manual page is part of WO1 Clayton Williams's Programmer's manual of custom libraries and functions.
 .SH Name
 radix.h - radix trie
 .SH Synopsis
@@ -12,113 +12,83 @@ The \fI"radix.h"\fP header shall define at least the following types:
 \fBtrie_t\fP      An 8 byte pointer to the radix trie.
 .P
 The following shall be declared as functions:
-.P
-\fBtrie_t    *radix_create(void);\fP
+.br
+\fBtrie_t   *radix_create(void);\fP
 .br 
 .RS 4
 Creates a radix trie
 .RE
 .P 
-\fBint radix_insert_word(trie_t *\fP\fItrie\fP\fB, const char *\fP\fIword\fP\fB);\fP
+\fBint      radix_insert_word(trie_t *\fP\fItrie\fP\fB, const char *\fP\fIword\fP\fB);\fP
 .br
 .RS 4
-Inserts value \fIword\fP into \fItrie\fP
+Inserts \fIword\fP into \fItrie\fP
 .RE
 .P 
-\fBint radix_remove_word(trie_t *\fP\fItrie\fP\fB, const char *\fP\fIword\fP\fB);\fP
+\fBint      radix_remove_word(trie_t *\fP\fItrie\fP\fB, const char *\fP\fIword\fP\fB);\fP
 .br
 .RS 4
-Removes \fIword\fP for \fItrie\fP
+Removes \fIword\fP from \fItrie\fP
 .RE
 .P 
-\fBint    radix_find_word(trie_t *\fP\fItrie\fP\fB, const char *\fP\fIword\fP\fB);\fP
+\fBint      radix_find_word(trie_t *\fP\fItrie\fP\fB, const char *\fP\fIword\fP\fB);\fP
 .br
 .RS 4
 Find \fIword\fP if it exists in \fItrie\fP
 .RE
 .P 
-\fBint    radix_find_prefix(trie_t *\fP\fItrie\fP\fB, const char *\fP\fIprefix\fP\fB);\fP
+\fBint      radix_find_prefix(trie_t *\fP\fItrie\fP\fB, const char *\fP\fIprefix\fP\fB);\fP
 .br
 .RS 4
 Find \fIprefix\fP in \fItrie\fP if it exists and print words beginning with \fIprefix\fP
 .RE
 .P 
-\fBvoid    radix_delete(trie_t **\fP\fItrie\fP\fB);\fP
+\fBvoid     radix_delete(trie_t **\fP\fItrie\fP\fB);\fP
 .br
 .RS 4
-
-
-.P
-\fBhash_t      *hash_table_create(uint32_t \fP\fIsize\fP\fB, hash_f \fP\fIhf\fP\fB);\fP
-.br
-.RS 4
-Creates a hash table of initial size \fIsize\fP, storing the custom hash function pointed to by \fIhf\fP.
-.RE
-.P 
-\fBvoid        hash_table_destroy(hash_t *\fP\fItable\fP\fB);\fP
-.br
-.RS 4
-free() memory where caller stores \fItree\fP and sets memory to \fINULL\fP.
-.RE
-.P
-\fBbool        hash_table_insert(hasht_t *\fP\fItable\fP\fB, char *\fP\fIname\fP\fB);\fP
-.br
-.RS 4
-Inserts value \fIname\fP into \fItable\fP.
-.RE
-.P 
-\fBbool        hash_table_delete(hash_t *\fP\fItable\fP\fB, char *\fP\fIname\fP\fB);\fP
-.br
-.RS 4
-Deletes value \fIname\fP in \fItable\fP.
-.RE
-.P 
-\fBvoid        hash_table_print(hash_t *\fP\fItable\fP\fB);\fP
-.br
-.RS 4
-Prints contents of \fItable\fP.
-.RE
-.P 
-\fBuint32_t    hash_table_get_size(hash_t *\fP\fItable\fP\fB);\fP
-.br
-.RS 4
-Get number of elements stored in \fItable\fP.
+\fBfree\fP() memory where caller stores \fItrie\fP and sets memory to \fINULL\fP.
 .RE
 .P 
 .SH Return Values
-\fBhash_table_create(uint32_t, hf);\fP
+\fBradix_create(void)\fP
 .br
 .RS 4
-Returns a pointer to the allocated memory. On error, this function returns \fINULL\fP. \fBhash_table_create()\fP can fail with the following error:
-.br
-\fBENOMEM\fP Out of memory.
+Returns a pointer to the allocated memory. On error, this function returns \fINULL\fP. 
 .RE
 .P 
-\fBhash_table_insert(hash_t *, char *);\fP
+\fBradix_insert_word(trie_t *, const char *);\fP
 .br
 .RS 4
-Returns \fItrue\fP on success or \fIfalse\fP on failure. \fBhash_table_insert()\fP can fail with the following error on \fBrealloc()\fP:
-.br
-\fBENOMEM\fP Out of memory.
+On success, \fBradix_insert_word()\fP returns \fI0\fP. On failure, it returns a \fInon-zero\fP value.
 .RE
 .P 
-\fBhash_table_find(hash_t *, char *);\fP
+\fBradix_remove_word(trie_t *, const char *);\fP
 .br
 .RS 4
-Returns \fItrue\fP if value found, else \fIfalse\fP.
+On success, \fBradix_remove_word()\fP returns \fI1\fP. On failure, it returns \fI0\fP. On error, it returns \fI-1\fP
+and writes to \fIstderr\fP.
 .RE
 .P 
-\fBhash_table_delete(hash_t *, char *);\fP
+\fBradix_find_word(trie_t *, const char *);\fP
 .br
 .RS 4
-Returns \fItrue\fP on success or \fIfalse\fP on failure.
+On success, \fBradix_find_word()\fP returns \fI1\fP if value found. On failure, it returns \fI0\fP if value
+not found. On error, it returns \fI-1\fP and writes to \fIstderr\fP.
 .RE
 .P 
-\fBhash_table_get_size(hash_t *);\fP
+\fBradix_find_prefix(trie_t *, const char *);\fP
 .br
 .RS 4
-Returns \fIuint32_t\fP size. On failure, sets \fIerrno\fP and returns \fINULL\fP.
-.br
+On success \fBradix_find_prefix()\fP returns \fI1\fP if prefix is found. On failure, it returns \fI0\fP if prefix
+is not found. On error, it returns \fI-1\fP and writes to \fIstderr\fP.
+.RE
+.P 
+.SH ERRORS
+\fBradix_create\fP(), \fBradix_insert_word\fP(), and \fBradix_find_prefix\fP() can fail with the following error:
+.P 
+\fBENOMEM\fP Out of memory. Possibly, the application hit the \fBRLIMIT_AS\fP or \fBRLIMIT_DATA\fP limit
+described in \fBgetrlimit\fP(2).
+.br 
 .br
 .SH License
 .SH Author
