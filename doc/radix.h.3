@@ -1,0 +1,100 @@
+'\" et
+.TH radix.h "Custom Library" 2023 "WO1 Clayton Williams" "Custom Library Programmer's Manual"
+.SH PROLOG
+This manual page is part of WO1 Clayton Williams's Programmer's manual of custom libraries and functions.
+.SH Name
+radix.h - radix trie
+.SH Synopsis
+#include "../include/radix.h"
+.SH Description
+The \fI"radix.h"\fP header shall define at least the following types:
+.br
+\fBtrie_t\fP      An 8 byte pointer to the radix trie.
+.P
+The following shall be declared as functions:
+.br
+\fBtrie_t   *radix_create(void);\fP
+.br 
+.RS 4
+Creates a radix trie
+.RE
+.P 
+\fBint      radix_insert_word(trie_t *\fP\fItrie\fP\fB, const char *\fP\fIword\fP\fB);\fP
+.br
+.RS 4
+Inserts \fIword\fP into \fItrie\fP
+.RE
+.P 
+\fBint      radix_remove_word(trie_t *\fP\fItrie\fP\fB, const char *\fP\fIword\fP\fB);\fP
+.br
+.RS 4
+Removes \fIword\fP from \fItrie\fP
+.RE
+.P 
+\fBint      radix_find_word(trie_t *\fP\fItrie\fP\fB, const char *\fP\fIword\fP\fB);\fP
+.br
+.RS 4
+Find \fIword\fP if it exists in \fItrie\fP
+.RE
+.P 
+\fBint      radix_find_prefix(trie_t *\fP\fItrie\fP\fB, const char *\fP\fIprefix\fP\fB);\fP
+.br
+.RS 4
+Find \fIprefix\fP in \fItrie\fP if it exists and print words beginning with \fIprefix\fP
+.RE
+.P 
+\fBvoid     radix_delete(trie_t **\fP\fItrie\fP\fB);\fP
+.br
+.RS 4
+\fBfree\fP() memory where caller stores \fItrie\fP and sets memory to \fINULL\fP.
+.RE
+.P 
+.SH Return Values
+\fBradix_create(void)\fP
+.br
+.RS 4
+Returns a pointer to the allocated memory. On error, this function returns \fINULL\fP. 
+.RE
+.P 
+\fBradix_insert_word(trie_t *, const char *);\fP
+.br
+.RS 4
+On success, \fBradix_insert_word()\fP returns \fI0\fP. On failure, it returns a \fInon-zero\fP value.
+.RE
+.P 
+\fBradix_remove_word(trie_t *, const char *);\fP
+.br
+.RS 4
+On success, \fBradix_remove_word()\fP returns \fI1\fP. On failure, it returns \fI0\fP. On error, it returns \fI-1\fP
+and writes to \fIstderr\fP.
+.RE
+.P 
+\fBradix_find_word(trie_t *, const char *);\fP
+.br
+.RS 4
+On success, \fBradix_find_word()\fP returns \fI1\fP if value found. On failure, it returns \fI0\fP if value
+not found. On error, it returns \fI-1\fP and writes to \fIstderr\fP.
+.RE
+.P 
+\fBradix_find_prefix(trie_t *, const char *);\fP
+.br
+.RS 4
+On success \fBradix_find_prefix()\fP returns \fI1\fP if prefix is found. On failure, it returns \fI0\fP if prefix
+is not found. On error, it returns \fI-1\fP and writes to \fIstderr\fP.
+.RE
+.P 
+.SH ERRORS
+\fBradix_create\fP(), \fBradix_insert_word\fP(), and \fBradix_find_prefix\fP() can fail with the following error:
+.P 
+\fBENOMEM\fP Out of memory. Possibly, the application hit the \fBRLIMIT_AS\fP or \fBRLIMIT_DATA\fP limit
+described in \fBgetrlimit\fP(2).
+.br 
+.br
+.SH License
+.SH Author
+.PP
+WO1 Clayton E. Williams
+.PP
+clayton.e.williams15.mil@army.mil
+.SH COPYRIGHT
+.PP
