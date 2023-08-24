@@ -70,11 +70,8 @@ void radix_delete(trie_t ** trie);
  * Each node traversed will print with one (1) space separating
  *
  * @param[in] trie The trie to display
- *
- * void radix_print_nodes(trie_t *trie);
  */
-
-void radix_print(trie_t * root);
+void radix_print_nodes(trie_t * trie);
 
 #endif				/* RADIX_H */
 /*** end of file ***/

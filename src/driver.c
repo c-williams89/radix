@@ -52,7 +52,7 @@ int main(void)
 	// radix_insert_word(root, "pickle");
 	// radix_insert_word(root, "p");
 
-	radix_print(root);
+	// radix_print(root);
 	// char *test_words[] =
 	//     { "pick", "pla", "play", "banana", "pickling", "p", "placebos",
 	//         "pic", NULL,  };
@@ -97,7 +97,7 @@ int main(void)
 
 	radix_delete(&root);
 	radix_find_prefix(root, "pickle");
-        radix_delete(&root);
+	radix_delete(&root);
 	return 1;
 
 }
