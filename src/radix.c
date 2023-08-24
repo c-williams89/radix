@@ -33,7 +33,6 @@ trie_t *radix_create(void)
 	return calloc(1, sizeof(trie_t));
 }
 
-// BUG: For insert, when bifurcating play from places, make sure child 'ce' is set to not a word
 int radix_insert_word(trie_t * trie, const char *word)
 {
 	int return_val = 0;
@@ -267,10 +266,6 @@ static trie_t *radix_insert_rec(trie_t * node, char *word, int len, int index)
                 if (cpy->b_is_word) {
 		        tmp->b_is_word = true;
                 }
-		// TODO: Doesn't look like this logic is necessary, confirm then delete
-		// char *new_string = calloc(root_word_len + 1, sizeof(char));
-		// memcpy(new_string, cpy->word + prefix_idx, root_word_len);
-		// new_index = CHAR_TO_INDEX(new_string[0]);
 		new_index = CHAR_TO_INDEX((cpy->word + prefix_idx)[0]);
 		cpy->word[prefix_idx] = '\0';
 		if (new_word_len == prefix_idx) {
