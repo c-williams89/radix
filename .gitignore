@@ -10,3 +10,5 @@ data.txt
 src/driver.txt
 output.md
 
+doc/*.png
+doc/*.drawio
