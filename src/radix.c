@@ -17,13 +17,16 @@ struct trie_t {
 	bool b_is_word;
 };
 
+static bool validate_input(const char *word);
+static int radix_find_rec(trie_t * root, const char *word, bool b_to_remove);
 static trie_t *radix_insert_rec(trie_t * node, char *word, int len, int index);
+
 static trie_t *radix_create_node(int len);
 static int get_prefix_index(const char *word, const char *new_word);
-static int radix_find_rec(trie_t * root, const char *word, bool b_to_remove);
 static void print_word_by_prefix(trie_t * node, char *word, int len);
 static trie_t *get_prefix_node(trie_t * node, const char *word);
-static bool validate_input(const char *word);
+
+// TODO: Go through each function and do NULL checks on any calloc
 
 trie_t *radix_create(void)
 {
@@ -288,10 +291,8 @@ static trie_t *radix_insert_rec(trie_t * node, char *word, int len, int index)
 		if (strlen(word) > 0) {
 			new_index = CHAR_TO_INDEX(word[0]);
 			len_to_pass = strlen(word);
-			// return radix_insert_rec(cpy, word, strlen(word), new_index);
 		} else {
 			goto EXIT;
-			// return NULL;
 		}
 	}
 	return radix_insert_rec(cpy, word, len_to_pass, new_index);
