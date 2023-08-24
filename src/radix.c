@@ -264,9 +264,9 @@ static trie_t *radix_insert_rec(trie_t * node, char *word, int len, int index)
 			memcpy(tmp->word, (cpy->word + prefix_idx),
 			       root_word_len);
 		}
-		tmp->b_is_word = true;
-
-		// Sets non-unique character to null
+                if (cpy->b_is_word) {
+		        tmp->b_is_word = true;
+                }
 		// TODO: Doesn't look like this logic is necessary, confirm then delete
 		// char *new_string = calloc(root_word_len + 1, sizeof(char));
 		// memcpy(new_string, cpy->word + prefix_idx, root_word_len);
